@@ -9,12 +9,10 @@
 #define COLORSENSOR_H
 
 #include "StackLabs.h"
-#include <DFRobot_TCS34725.h>
+#include <Adafruit_TCS34725.h>
 
 namespace StackLabs {
     namespace ColorSensor {
-        extern DFRobot_TCS34725 sensor;
-
         /**
          * @brief   Sets up the color sensor.
         */
@@ -56,8 +54,8 @@ namespace StackLabs {
         /**
          * @brief   Calculates the most likely poker chip being scanned.
          * 
-         * @return  Integer representing the poker chip. 0 = Black, 1 = Red,
-         *          2 = Green, 3 = Blue.
+         * @return  Integer representing the poker chip. 0 = None, 1 = Black,
+         *          2 = Red, 3 = Green, 4 = Blue.
         */
         uint8_t calculateMatch();
     }
