@@ -7,11 +7,9 @@
 
 #include "StackLabs.h"
 #include "Buttons.h"
-#include "Multiplexer.h"
-#include <Arduino.h>
 
-const uint8_t MUX_REQUESTER_ID = 1;
-unsigned long startTimes[4];
+static const uint8_t MUX_REQUESTER_ID = 1;
+static unsigned long startTimes[4];
 
 namespace StackLabs {
     namespace Buttons {

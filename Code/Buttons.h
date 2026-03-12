@@ -10,7 +10,9 @@
 
 #include "StackLabs.h"
 
-const unsigned LONG_PRESS = 750;
+#include <avr/pgmspace.h>
+
+static const uint16_t LONG_PRESS = 750;
 
 namespace StackLabs {
     namespace Buttons {

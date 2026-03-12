@@ -9,6 +9,7 @@
 #define COLORSENSOR_H
 
 #include "StackLabs.h"
+
 #include <Adafruit_TCS34725.h>
 
 namespace StackLabs {
@@ -28,28 +29,28 @@ namespace StackLabs {
          * 
          * @return  Most recent green value.
         */
-        uint16_t getRed();
+        uint8_t getRed();
 
         /**
          * @brief   Gets the most recent red value.
          * 
          * @return  Most recent red value.
         */
-        uint16_t getGreen();
+        uint8_t getGreen();
 
         /**
          * @brief   Gets the most recent blue value.
          * 
          * @return  Most recent blue value.
         */
-        uint16_t getBlue();
+        uint8_t getBlue();
 
         /**
          * @brief   Gets the most recent clear value.
          * 
          * @return  Most recent clear value.
         */
-        uint16_t getClear();
+        uint8_t getClear();
 
         /**
          * @brief   Calculates the most likely poker chip being scanned.

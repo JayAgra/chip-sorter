@@ -6,8 +6,8 @@
 //
 
 #include "Stepper.h"
-#include "StackLabs.h"
 #include "Multiplexer.h"
+
 #include <Arduino.h>
 
 StackLabs::Stepper::Motor StackLabs::Stepper::Stepper1(2, 3, 7, 6, 0, 1, 2);

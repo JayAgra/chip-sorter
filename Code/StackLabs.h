@@ -14,10 +14,9 @@
 #include "Locale.h"
 #include "Multiplexer.h"
 #include "Stepper.h"
-#include <Arduino.h>
 
 namespace StackLabs {
-
+    
 }
 
 #endif

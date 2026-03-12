@@ -1,0 +1,188 @@
+MENU/HOME (0):
+ 01234567890123456789
+╔════════════════════╗
+║        MENU        ║ ROW 0
+║                    ║ ROW 1
+║                    ║ ROW 2
+║[OUT][INV][SET][OFF]║ ROW 3
+╟────────────────────╢
+║ [ ]  [ ]  [ ]  [ ] ║ BUTTONS
+╚════════════════════╝
+
+OUT/DISPENSE (1):
+ 01234567890123456789
+╔════════════════════╗
+║SELECT CHIPS $000000║ ROW 0
+║LONG PRESS TO REVIEW║ ROW 1
+║ 000  000  000  000 ║ ROW 2
+║[  5][ 10][ 25][100]║ ROW 3
+╟────────────────────╢
+║ [ ]  [ ]  [ ]  [ ] ║ BUTTONS
+╚════════════════════╝
+
+OUT/DISPENSE REVIEW (2):
+ 01234567890123456789
+╔════════════════════╗
+║CONFIRM DISP $000000║ ROW 0
+║ $  5: 00  $ 10: 00 ║ ROW 1
+║ $ 25: 00  $100: 00 ║ ROW 2
+║[NO!][  MENU  ][YES]║ ROW 3
+╟────────────────────╢
+║ [ ]  [ ]  [ ]  [ ] ║ BUTTONS
+╚════════════════════╝
+
+INSUFFICIENT STOCK (3):
+ 01234567890123456789
+╔════════════════════╗
+║ INSUFFICIENT STOCK ║ ROW 0
+║ ONE OR MORE RQSTD. ║ ROW 1
+║ CHIPS UNAVAILABLE! ║ ROW 2
+║[       MENU       ]║ ROW 3
+╟────────────────────╢
+║ [ ]  [ ]  [ ]  [ ] ║ BUTTONS
+╚════════════════════╝
+
+DISPENSING (4):
+ 01234567890123456789
+╔════════════════════╗
+║ REMAINING: $000000 ║ ROW 0
+║ $  5: 00  $ 10: 00 ║ ROW 1
+║ $ 25: 00  $100: 00 ║ ROW 2
+║[  PLEASE WAIT...  ]║ ROW 3
+╟────────────────────╢
+║ [ ]  [ ]  [ ]  [ ] ║ BUTTONS
+╚════════════════════╝
+
+CHIP INVENTORY (5):
+ 01234567890123456789
+╔════════════════════╗
+║   CHIP INVENTORY   ║ ROW 0
+║ $  5: 00  $ 10: 00 ║ ROW 1
+║ $ 25: 00  $100: 00 ║ ROW 2
+║[       MENU       ]║ ROW 3
+╟────────────────────╢
+║ [ ]  [ ]  [ ]  [ ] ║ BUTTONS
+╚════════════════════╝
+
+SETTINGS (6):
+ 01234567890123456789
+╔════════════════════╗
+║      SETTINGS      ║ ROW 0
+║ STATUS: OK         ║ ROW 1
+║ VER: H100F100S100  ║ ROW 2
+║[ ← ][LCD][LOC][VAL]║ ROW 3
+╟────────────────────╢
+║ [ ]  [ ]  [ ]  [ ] ║ BUTTONS
+╚════════════════════╝
+
+SETTINGS/LCD (7):
+ 01234567890123456789
+╔════════════════════╗
+║    LCD SETTINGS    ║ ROW 0
+║ BACKLIGHT: OFF     ║ ROW 1
+║ SLEEP: 060 SECONDS ║ ROW 2
+║[  MENU  ][BLT][SLP]║ ROW 3
+╟────────────────────╢
+║ [ ]  [ ]  [ ]  [ ] ║ BUTTONS
+╚════════════════════╝
+
+SETTINGS/LOCALE (8):
+ 01234567890123456789
+╔════════════════════╗
+║       LOCALE       ║ ROW 0
+║ CURRENCY: USD ($)  ║ ROW 1
+║ LANGUAGE: EN-US    ║ ROW 2
+║[ ← ][INF][CUR][LAN]║ ROW 3
+╟────────────────────╢
+║ [ ]  [ ]  [ ]  [ ] ║ BUTTONS
+╚════════════════════╝
+
+SETTINGS/DEVICE INFO PG 1 (9):
+ 01234567890123456789
+╔════════════════════╗
+║  DEVICE INFO PG 1  ║ ROW 0
+║HARDWARE: 1.0.0 3/26║ ROW 1
+║FIRMWARE: 1.0.0 3/26║ ROW 2
+║[ ← ][MNU][ PAGE → ]║ ROW 3
+╟────────────────────╢
+║ [ ]  [ ]  [ ]  [ ] ║ BUTTONS
+╚════════════════════╝
+
+SETTINGS/DEVICE INFO PG 2 (10):
+ 01234567890123456789
+╔════════════════════╗
+║  DEVICE INFO PG 2  ║ ROW 0
+║SOFTWARE: 1.0.0 3/26║ ROW 1
+║PLATFORM: AVR       ║ ROW 2
+║[ ← ][MNU][←PG][PG→]║ ROW 3
+╟────────────────────╢
+║ [ ]  [ ]  [ ]  [ ] ║ BUTTONS
+╚════════════════════╝
+
+SETTINGS/DEVICE INFO PG 3 (11):
+ 01234567890123456789
+╔════════════════════╗
+║  DEVICE INFO PG 3  ║ ROW 0
+║FREEMEM: 1024 BYTES ║ ROW 1
+║UPTIME:  9999 MIN   ║ ROW 2
+║[ ← ][MNU][←PG][PG→]║ ROW 3
+╟────────────────────╢
+║ [ ]  [ ]  [ ]  [ ] ║ BUTTONS
+╚════════════════════╝
+
+SETTINGS/DEVICE INFO PG 4 (12):
+ 01234567890123456789
+╔════════════════════╗
+║  DEVICE INFO PG 4  ║ ROW 0
+║ERRS: XXXX XXXX XXXX║ ROW 1
+║ERRS: XXXX XXXX XXXX║ ROW 2
+║[ ← ][MNU][ ← PAGE ]║ ROW 3
+╟────────────────────╢
+║ [ ]  [ ]  [ ]  [ ] ║ BUTTONS
+╚════════════════════╝
+
+SETTINGS/VALUES (13):
+ 01234567890123456789
+╔════════════════════╗
+║    VALUES (USD)    ║ ROW 0
+║*A: 005 010 025 100 ║ ROW 1
+║ B: 005 010 025 050 ║ ROW 2
+║[  MENU  ][ TOGGLE ]║ ROW 3
+╟────────────────────╢
+║ [ ]  [ ]  [ ]  [ ] ║ BUTTONS
+╚════════════════════╝
+
+OFF (14):
+ 01234567890123456789
+╔════════════════════╗
+║     SYSTEM OFF     ║ ROW 0
+║      GOODBYE!      ║ ROW 1
+║ SHUTTING DOWN: 60S ║ ROW 2
+║[ ← ][   OFF NOW   ]║ ROW 3
+╟────────────────────╢
+║ [ ]  [ ]  [ ]  [ ] ║ BUTTONS
+╚════════════════════╝
+
+CURRENCY LOCALE STRINGS:
+CURR	SET	RED	BLUE	GRN	BLK
+USD $	A	$  5	$ 10	$ 25	$100
+	    B	$  5	$ 10	$ 25	$ 50
+EUR €	A	€  5	€ 10	€ 25	€ 50
+	    B	€  5	€ 10	€ 25	€100
+GBP £	A	£  5	£ 10	£ 25	£ 50
+	    B	£  5	£ 10	£ 25	£100
+JPY ¥	A	¥500	¥ 1K	¥ 5K	¥10K
+	    B	¥100	¥200	¥ 1K	¥ 2K
+
+CURR	6-DIGIT STRINGS
+USD $	$000000
+EUR €	€000000
+GBP £	£000000
+JPY ¥	¥000.0K
+
+LOCALE KEYS:
+LOCALE  KEY
+en-US   0
+es-MX   1
+
+// idk why it looks goofy it was fine in word and im not fixing it

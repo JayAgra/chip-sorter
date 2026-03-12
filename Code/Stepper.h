@@ -10,7 +10,7 @@
 
 #include "StackLabs.h"
 
-const uint8_t TOTAL_FULL_STEPS = 200;
+static const uint8_t TOTAL_FULL_STEPS = 200;
 
 namespace StackLabs {
     namespace Stepper {

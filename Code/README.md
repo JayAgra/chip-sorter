@@ -1,4 +1,4 @@
-Editor setup
+## Editor setup
 
 Make sure to edit include paths and defines.
 
@@ -16,5 +16,5 @@ ${workspaceFolder}/**
 Defines (platform-agnostic):
 ```
 ARDUINO=187
-USBCON
 ```
+<!--USBCON-->

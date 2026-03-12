@@ -7,14 +7,15 @@
 
 #include "StackLabs.h"
 #include "Multiplexer.h"
+
 #include <Arduino.h>
 
-const int MUX_SIGNAL = A1;
-const int MUX_CONTROL[] = {10, 11, 12, 13};
+static const int MUX_SIGNAL = A1;
+static const int MUX_CONTROL[] = {10, 11, 12, 13};
 
 // 0 = free, 1 = buttons, 2 = motor 1, 3 = motor 2
-uint8_t owner = 0;
-uint8_t mode = INPUT;
+static uint8_t owner = 0;
+static uint8_t mode = INPUT;
 
 namespace StackLabs {
     namespace Multiplexer {
