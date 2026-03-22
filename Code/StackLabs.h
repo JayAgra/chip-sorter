@@ -16,7 +16,7 @@
 #include "Stepper.h"
 
 namespace StackLabs {
-    
+    void setup();
 }
 
 #endif

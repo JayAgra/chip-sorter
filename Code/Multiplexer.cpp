@@ -5,7 +5,6 @@
 //  Created by Jayen Agrawal on 3/10/26.
 //
 
-#include "StackLabs.h"
 #include "Multiplexer.h"
 
 #include <Arduino.h>
@@ -33,6 +32,7 @@ namespace StackLabs {
                 pinMode(MUX_SIGNAL, mode);
                 return true;
             }
+            
             return false;
         }
 
@@ -43,11 +43,13 @@ namespace StackLabs {
         }
 
         bool selectChannel(uint8_t requester, uint8_t channel) {
-            if (requester != owner) { return false; }
-            if (channel > 15) { return false; }
+            if (requester != owner) return false;
+            if (channel > 15) return false;
+
             for (int i = 0; i < 4; ++i) {
                 digitalWrite(MUX_CONTROL[(size_t) i], (channel >> i) & 1);
             }
+
             return true;
         }
 
@@ -60,7 +62,8 @@ namespace StackLabs {
         }
 
         bool write(uint8_t requester, uint8_t value) {
-            if (requester != owner || mode == INPUT) { return false; }
+            if (requester != owner || mode == INPUT) return false;
+            
             digitalWrite(MUX_SIGNAL, value);
             return true;
         }

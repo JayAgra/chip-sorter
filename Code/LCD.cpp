@@ -5,7 +5,6 @@
 //  Created by Jayen Agrawal on 3/9/26.
 //
 
-#include "StackLabs.h"
 #include "LCD.h"
 
 #include <LiquidCrystal_I2C.h>
@@ -76,19 +75,26 @@ static const uint8_t CHAR_RIGHT[8] PROGMEM = {
     0b00000
 };
 
-static void createChar(
-    uint8_t slot,
-    const uint8_t* src
-) {
+static void createChar(uint8_t slot, const uint8_t* src) {
     // read from PROGMEM and create
     uint8_t buffer[8];
     memcpy_P(buffer, src, 8);
     lcd.createChar(slot, buffer);
 }
 
+static void createCharacters() {
+    createChar(0, CHAR_EUR);
+    createChar(1, CHAR_GBP);
+    createChar(2, CHAR_JPY);
+    createChar(3, CHAR_CHF);
+    createChar(4, CHAR_LEFT);
+    createChar(5, CHAR_RIGHT);
+}
+
 static void writePROGMEM(const char* p) {
     // get from PROGMEM
     char c;
+
     while ((c = pgm_read_byte(p++))) {
         // write!
         lcd.write(c);
@@ -98,9 +104,11 @@ static void writePROGMEM(const char* p) {
 // can't get length of things in PROGMEM by default, so need this to get length
 static uint8_t lenPROGMEM(const char* p) {
     uint8_t n = 0;
+
     while (pgm_read_byte(p + n)) {
         ++n;
     }
+    
     return n;
 }
 
@@ -143,10 +151,7 @@ static void writeButtons(uint8_t btnOffset) {
     }
 }
 
-static void writeRow(
-    uint8_t rowOffset,
-    uint8_t lcdRow
-) {
+static void writeRow(uint8_t rowOffset, uint8_t lcdRow) {
     // get the row info from PROGMEM
     StackLabs::Locale::Row rd;
     memcpy_P(&rd, &StackLabs::Locale::ROW_TABLE[rowOffset], sizeof(rd));
@@ -157,7 +162,7 @@ static void writeRow(
     }
 
     // set cursor and write from PROGMEM
-    lcd.setCursor(rd.labelCol, lcdRow);
+    lcd.setCursor(rd.label, lcdRow);
     writePROGMEM(StackLabs::Locale::getString(rd.stringID));
 }
 
@@ -168,15 +173,7 @@ namespace StackLabs {
             lcd.clear();
             lcd.backlight();
             lcd.setCursor(0, 0);
-        }
-
-        void createCharacters() {
-            createChar(0, CHAR_EUR);
-            createChar(1, CHAR_GBP);
-            createChar(2, CHAR_JPY);
-            createChar(3, CHAR_CHF);
-            createChar(4, CHAR_LEFT);
-            createChar(5, CHAR_RIGHT);
+            createCharacters();
         }
 
         void printEmptyState(uint8_t state) {
@@ -197,18 +194,20 @@ namespace StackLabs {
             uint8_t slotIndex,
             const char* value
         ) {
+            // ensure all values are  in range
             if (state >= SCREEN_COUNT) return;
             if (rowIndex >= 3) return;
             if (slotIndex >= 4) return;
 
-            StackLabs::Locale::Row rd;
+            // get the row description from memory
+            StackLabs::Locale::Row row;
             memcpy_P(
-                &rd,
+                &row,
                 &StackLabs::Locale::ROW_TABLE[(state * 3) + rowIndex],
-                sizeof(rd)
+                sizeof(row)
             );
 
-            uint8_t col = rd.writeCols[slotIndex];
+            uint8_t col = row.write[slotIndex];
             if (col == 0xFF) return;
 
             lcd.setCursor(col, rowIndex);

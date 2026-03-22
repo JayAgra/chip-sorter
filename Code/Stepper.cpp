@@ -6,14 +6,15 @@
 //
 
 #include "Stepper.h"
-#include "Multiplexer.h"
 
 #include <Arduino.h>
 
-StackLabs::Stepper::Motor StackLabs::Stepper::Stepper1(2, 3, 7, 6, 0, 1, 2);
-StackLabs::Stepper::Motor StackLabs::Stepper::Stepper2(4, 5, 9, 8, 3, 4, 3);
+using namespace StackLabs;
 
-void StackLabs::Stepper::Motor::setup() {
+Stepper::Motor Stepper::Stepper1(2, 3, 7, 6, 0, 1, 2);
+Stepper::Motor Stepper::Stepper2(4, 5, 9, 8, 3, 4, 3);
+
+void Stepper::Motor::setup() {
     pinMode(step, OUTPUT);
     pinMode(dir, OUTPUT);
     pinMode(sleep, OUTPUT);
@@ -23,27 +24,26 @@ void StackLabs::Stepper::Motor::setup() {
     digitalWrite(reset, HIGH);
 }
 
-uint16_t StackLabs::Stepper::Motor::setSpeed(uint16_t speed) {
-    if (speed < 5000) {
+uint16_t Stepper::Motor::setSpeed(uint16_t speed) {
+    // im just guessing on speed will test in a bit
+    if (speed <= 4000) {
         this->speed = speed;
     }
     return this->speed;
 }
 
-uint16_t StackLabs::Stepper::Motor::normalizeRotation(uint16_t add = 0) {
+uint16_t Stepper::Motor::normalizeRotation(uint16_t add = 0) {
     this->position = (this->position + add) % (TOTAL_FULL_STEPS * this->mode);
     return this->position;
 }
 
-uint16_t StackLabs::Stepper::Motor::move(uint16_t steps, uint16_t accelLimit = 20) {
-    if (steps == 0) {
-        return this->position;
-    }
+uint16_t Stepper::Motor::move(uint16_t steps, uint16_t accelLimit = 20) {
+    if (steps == 0) return this->position;
 
     digitalWrite(dir, this->clockwise);
 
     // assume we're stopped, set lowest supported speed
-    uint16_t currentSpeed = 4999;
+    uint16_t currentSpeed = 4000;
     uint16_t targetSpeed = 5000 - this->speed;
 
     // acceleration phase
@@ -81,10 +81,8 @@ uint16_t StackLabs::Stepper::Motor::move(uint16_t steps, uint16_t accelLimit = 2
     return this->position;
 }
 
-uint16_t StackLabs::Stepper::Motor::normalizeStep() {
-    if (this->mode == 1) {
-        return this->position;
-    }
+uint16_t Stepper::Motor::normalizeStep() {
+    if (this->mode == 1) return this->position;
 
     uint16_t newPosition;
 
@@ -104,12 +102,9 @@ uint16_t StackLabs::Stepper::Motor::normalizeStep() {
     return this->position;
 }
 
-uint16_t StackLabs::Stepper::Motor::setStepMode(uint8_t mode) {
-    if (mode == 1) {
-        return this->releaseStepMode();
-    } else if (mode != 2 && mode != 4) {
-        return this->position;
-    }
+uint16_t Stepper::Motor::setStepMode(uint8_t mode) {
+    if (mode == 1) return this->releaseStepMode();
+    if (mode != 2 && mode != 4) return this->position;
 
     uint16_t newStep = this->normalizeStep();
 
@@ -132,10 +127,8 @@ uint16_t StackLabs::Stepper::Motor::setStepMode(uint8_t mode) {
     return this->position;
 }
 
-uint16_t StackLabs::Stepper::Motor::releaseStepMode() {
-    if (this->mode == 1) {
-        return this->position;
-    }
+uint16_t Stepper::Motor::releaseStepMode() {
+    if (this->mode == 1) return this->position;
 
     uint16_t newStep = this->normalizeStep();
 
@@ -151,30 +144,30 @@ uint16_t StackLabs::Stepper::Motor::releaseStepMode() {
     return this->position;
 }
 
-bool StackLabs::Stepper::Motor::setDirection(bool clockwise) {
+bool Stepper::Motor::setDirection(bool clockwise) {
     this->clockwise = clockwise;
     digitalWrite(dir, this->clockwise);
 }
 
-void StackLabs::Stepper::Motor::stop() {
+void Stepper::Motor::stop() {
     digitalWrite(step, LOW);
 }
 
-void StackLabs::Stepper::Motor::resetPosition() {
+void Stepper::Motor::resetPosition() {
     digitalWrite(reset, LOW);
     delayMicroseconds(10);
     digitalWrite(reset, HIGH);
 }
 
-void StackLabs::Stepper::Motor::setSleep(bool sleep) {
+void Stepper::Motor::setSleep(bool sleep) {
     digitalWrite(sleep, ~sleep);
 }
 
 namespace StackLabs {
     namespace Stepper {
         void setupBothSteppers() {
-            StackLabs::Stepper::Stepper1.setup();
-            StackLabs::Stepper::Stepper2.setup();
+            Stepper::Stepper1.setup();
+            Stepper::Stepper2.setup();
         }
     }
 }

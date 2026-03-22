@@ -5,7 +5,6 @@
 //  Created by Jayen Agrawal on 3/10/26.
 //
 
-#include "StackLabs.h"
 #include "ColorSensor.h"
 
 #include <Adafruit_TCS34725.h>

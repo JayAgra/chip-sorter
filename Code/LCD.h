@@ -17,16 +17,11 @@ static LiquidCrystal_I2C lcd(0x27, 20, 4);
 namespace StackLabs {
     namespace LCD {
         /**
-         * @brief   Sets up the display and enables the backlight.
+         * @brief   Sets up the display and enables the backlight. Also creates
+         *          the required custom characters for currency support and a
+         *          few UI elements.
         */
         void setup();
-
-        /**
-         * @brief   Creates the custom characters used for currency support
-         *          and as a few UI elements. Requires prepareDisplay to be
-         *          called first in order to be successful.
-        */
-        void createCharacters();
 
         /**
          * @brief   Prints a blank UI according to the state ID. Please see

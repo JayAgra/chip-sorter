@@ -44,7 +44,7 @@ namespace StackLabs {
             Motor(int step, int dir, int sleep, int reset, int ms1, int ms2,
                 uint8_t muxRequester): step(step), dir(dir), sleep(sleep),
                 reset(reset), ms1(ms1), ms2(ms2), clockwise(true),
-                muxRequester(muxRequester), speed(4999), position(0), mode(1)
+                muxRequester(muxRequester), speed(4000), position(0), mode(1)
                 {}
             
             /**
@@ -55,7 +55,7 @@ namespace StackLabs {
             /**
              * @brief   Sets the motor speed.
              * 
-             * @param   speed   Motor rotation speed. Value [0-5000).
+             * @param   speed   Motor rotation speed. Value [0-4000].
             */
             uint16_t setSpeed(uint16_t speed);
 

@@ -20,11 +20,6 @@ namespace StackLabs {
             int button;
             bool held;
         };
-
-        /**
-         * @brief   Redundant setup function. Calls Multiplexer setup.
-        */
-        void setup();
         
         /**
          * @brief   Takes ownership of the Multiplexer and returns the next
