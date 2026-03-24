@@ -47,7 +47,7 @@ namespace StackLabs {
             uint8_t stringID, label, write[4];
         } __attribute__((packed));
 
-        extern const char* const STRINGS[STRING_COUNT] PROGMEM;
+        extern const char *const STRINGS[STRING_COUNT] PROGMEM;
         extern const Row ROW_TABLE[SCREEN_COUNT * 3] PROGMEM;
         extern const Button BTN_TABLE[SCREEN_COUNT * 4] PROGMEM;
 
@@ -59,8 +59,8 @@ namespace StackLabs {
          * 
          * @return  The string requested.
         */
-        inline const char* getString(uint8_t id) {
-            return (const char*)pgm_read_word(&STRINGS[id]);
+        inline const char *getString(uint8_t id) {
+            return (const char *)pgm_read_word(&STRINGS[id]);
         }
     }
 }

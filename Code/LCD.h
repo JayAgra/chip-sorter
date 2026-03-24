@@ -48,7 +48,7 @@ namespace StackLabs {
             uint8_t state,
             uint8_t row,
             uint8_t slot,
-            const char* value
+            const char *value
         );
     }
 }

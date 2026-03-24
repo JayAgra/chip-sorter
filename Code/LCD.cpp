@@ -75,10 +75,10 @@ static const uint8_t CHAR_RIGHT[8] PROGMEM = {
     0b00000
 };
 
-static void createChar(uint8_t slot, const uint8_t* src) {
+static void createChar(uint8_t slot, const uint8_t* character) {
     // read from PROGMEM and create
     uint8_t buffer[8];
-    memcpy_P(buffer, src, 8);
+    memcpy_P(buffer, character, 8);
     lcd.createChar(slot, buffer);
 }
 
@@ -89,9 +89,12 @@ static void createCharacters() {
     createChar(3, CHAR_CHF);
     createChar(4, CHAR_LEFT);
     createChar(5, CHAR_RIGHT);
+    #if DEBUG_FIRMWARE
+    Serial << "Wrote LCD customs\n";
+    #endif
 }
 
-static void writePROGMEM(const char* p) {
+static void writePROGMEM(const char *p) {
     // get from PROGMEM
     char c;
 
@@ -102,7 +105,7 @@ static void writePROGMEM(const char* p) {
 }
 
 // can't get length of things in PROGMEM by default, so need this to get length
-static uint8_t lenPROGMEM(const char* p) {
+static uint8_t lenPROGMEM(const char *p) {
     uint8_t n = 0;
 
     while (pgm_read_byte(p + n)) {
@@ -133,7 +136,7 @@ static void writeButtons(uint8_t btnOffset) {
         
         if (btn.width == 0) continue;
 
-        const char* strPtr = StackLabs::Locale::getString(btn.stringID);
+        const char *strPtr = StackLabs::Locale::getString(btn.stringID);
         // calculate dimensions of button and pad as needed
         uint8_t labelLen = lenPROGMEM(strPtr);
         uint8_t inner = btn.width - 2;
@@ -166,6 +169,17 @@ static void writeRow(uint8_t rowOffset, uint8_t lcdRow) {
     writePROGMEM(StackLabs::Locale::getString(rd.stringID));
 }
 
+bool runStateCheck(uint8_t state) {
+    if (state >= SCREEN_COUNT) {
+        #if DEBUG_FIRMWARE
+        Serial << "Invalid state provided: " << state << "\n";
+        #endif
+        return false; 
+    }
+
+    return true;
+}
+
 namespace StackLabs {
     namespace LCD {
         void setup() {
@@ -178,7 +192,7 @@ namespace StackLabs {
 
         void printEmptyState(uint8_t state) {
             // reject if invalid state
-            if (state >= SCREEN_COUNT) return;
+            if (!runStateCheck(state)) return;
             
             // clear and write content & buttons
             lcd.clear();
@@ -195,9 +209,14 @@ namespace StackLabs {
             const char* value
         ) {
             // ensure all values are  in range
-            if (state >= SCREEN_COUNT) return;
-            if (rowIndex >= 3) return;
-            if (slotIndex >= 4) return;
+            if (!runStateCheck(state)) return;
+            if (rowIndex >= 3 || slotIndex >= 4) {
+                #if DEBUG_FIRMWARE
+                Serial << "Invalid row/slot: Row " << rowIndex << ", Slot "
+                       << slotIndex << "\n";
+                #endif
+                return;
+            }
 
             // get the row description from memory
             StackLabs::Locale::Row row;

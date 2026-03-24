@@ -79,7 +79,7 @@ static const char _VAL[]           PROGMEM = "VAL";
 
 namespace StackLabs {
     namespace Locale {
-        static const char* const STRINGS[STRING_COUNT] PROGMEM = {
+        static const char *const STRINGS[STRING_COUNT] PROGMEM = {
             _OUT, _INV, _SET, _OFF_BTN, _NO, _YES, _MENU, _BLT, _SLP, _INF,
             _CUR, _LAN, _MNU, _TOGGLE, _OFF_NOW, _LEFT_ARROW, _RIGHT_ARROW,
             _PAGE_FWD, _PAGE_BCK, _PG_FWD, _PG_BCK, _MENU_TITLE, _SELECT,

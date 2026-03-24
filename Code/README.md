@@ -16,5 +16,6 @@ ${workspaceFolder}/**
 Defines (platform-agnostic):
 ```
 ARDUINO=187
+USBCON
 ```
 <!--USBCON-->

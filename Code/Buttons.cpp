@@ -7,65 +7,74 @@
 
 #include "Buttons.h"
 
-#define MAX_OWNERSHIP_WAIT 120 // 1 minute
-#define MAX_USER_WAIT 12000 // 2 minutes no complete interaction
+#include <avr/pgmspace.h>
 
-static const uint8_t MUX_REQUESTER_ID = 1;
+static const uint8_t MUX_ID = 1;
 static unsigned long startTimes[4];
 
 namespace StackLabs {
     namespace Buttons {
         Press getPress() {
             bool muxOwnership = false;
-            int ownershipWait = 0, userWait = 0;
-            
-            // try to get it
-            muxOwnership =
-                Multiplexer::takeOwnership(MUX_REQUESTER_ID, INPUT_PULLUP);
 
             // wait until we own the multiplexer
-            while (!muxOwnership && ownershipWait < MAX_OWNERSHIP_WAIT) {
-                muxOwnership =
-                    Multiplexer::takeOwnership(MUX_REQUESTER_ID, INPUT_PULLUP);
-                ++ownershipWait;
-                delay(500);
+            while (!muxOwnership) {
+                muxOwnership = Multiplexer::takeOwnership(MUX_ID, 0x2);
+                #if DEBUG_FIRMWARE
+                Serial << "Mux ownership status:  " << muxOwnership << "\n";
+                #endif
+                delay(100);
             }
 
-            while (userWait < MAX_USER_WAIT) {
+            while (true) {
                 for (int i = 0; i < 4; ++i) {
-                    Multiplexer::selectChannel(MUX_REQUESTER_ID, i);
-                    int8_t buttonValue = Multiplexer::read(MUX_REQUESTER_ID);
+                    Multiplexer::selectChannel(MUX_ID, i + 8);
+                    int8_t buttonValue = Multiplexer::read(MUX_ID);
+
+                    #if DEBUG_FIRMWARE
+                    Serial << "Value of button " << i << ": " << buttonValue
+                           << "\n";
+                    #endif
                     
                     switch (buttonValue) {
                     case 0:
                         if (startTimes[i] == 0) {
                             startTimes[i] = millis();
+                            #if DEBUG_FIRMWARE
+                            Serial << "Button pressed: " << i << "\n";
+                            #endif
                         }
                         break;
-                    case 1:
-                        if (startTimes[i] == 0) {
+                    default: // 1, not pressed
+                        if (startTimes[i] != 0) {
                             unsigned long pressLength =
                                 millis() - startTimes[i];
-
+                            startTimes[i] = 0;
                             // try to ignore noise
                             if (pressLength > 20) {
-                                Multiplexer::releaseOwnership(MUX_REQUESTER_ID);
+                                Multiplexer::releaseOwnership(MUX_ID);
                                 Press tmp = Press();
-                                tmp.button = i;
+                                // flip least significant digit to map pin no.
+                                tmp.button = i ^ 2;
                                 tmp.held = pressLength > LONG_PRESS;
+                                #if DEBUG_FIRMWARE
+                                Serial << "Button released: " << i << "\n";
+                                #endif
                                 return tmp;
                             }
-                        } else {
-                            ++userWait;
                         }
                         break;
-                    default:
-                        ++userWait;
-                        break;
                     }
+                    delay(2);
                 }
-                delay(10);
             }
         }
     }
 }
+
+/*
+    0 - Button "3"
+    1 - Button "4"
+    2 - Button "1"
+    3 - Button "2"
+*/

@@ -10,6 +10,8 @@
 
 #include "StackLabs.h"
 
+#include <Arduino.h>
+
 namespace StackLabs {
     namespace Multiplexer {
         /**

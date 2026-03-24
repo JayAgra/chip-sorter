@@ -10,6 +10,8 @@
 
 #include "StackLabs.h"
 
+#include <Arduino.h>
+
 static const uint8_t TOTAL_FULL_STEPS = 200;
 
 namespace StackLabs {

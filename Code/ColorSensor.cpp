@@ -32,12 +32,19 @@ namespace StackLabs {
         void setup() {
             while (!sensor.begin()) {
                 // write an error or something idk
+                #if DEBUG_FIRMWARE
+                Serial << "Color sensor init failed" << "\n";
+                #endif
                 delay(500);
             }
         }
 
         void readColor() {
             sensor.getRawData(&red, &green, &blue, &clear);
+            #if DEBUG_FIRMWARE
+            Serial << "Color sensor read: \n\tR: " << red << "\n\tG: " << green
+                   << "\n\tB: " << blue << "\n\tC: " << clear << "\n";
+            #endif
         }
 
         uint8_t getRed() {

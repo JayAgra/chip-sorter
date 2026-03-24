@@ -11,14 +11,14 @@ using namespace StackLabs;
 
 void setup() {
     StackLabs::setup();
+    Serial.println("HELLO");
+    Stepper::Stepper1.setSpeed(2000);
+    Stepper::Stepper2.setSpeed(2000);
 }
 
 void loop() {
-    for (uint8_t i = 0; i < 15; i++) {
-        LCD::printEmptyState(i);
-        if (i == 1 || i == 2) {
-            LCD::fillValue(i, 0, 0, "$123456");
-        }
-        delay(2000);
-    }
+    Buttons::Press input = Buttons::getPress();
+    LCD::printEmptyState(input.button);
+    Stepper::Stepper1.move(50 * input.button, 10);
+    Stepper::Stepper2.move(50 * input.button, 10);
 }

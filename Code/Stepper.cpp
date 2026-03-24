@@ -22,6 +22,9 @@ void Stepper::Motor::setup() {
 
     digitalWrite(sleep, HIGH);
     digitalWrite(reset, HIGH);
+
+    this->releaseStepMode();
+    this->resetPosition();
 }
 
 uint16_t Stepper::Motor::setSpeed(uint16_t speed) {
@@ -29,50 +32,64 @@ uint16_t Stepper::Motor::setSpeed(uint16_t speed) {
     if (speed <= 4000) {
         this->speed = speed;
     }
+
     return this->speed;
 }
 
 uint16_t Stepper::Motor::normalizeRotation(uint16_t add = 0) {
     this->position = (this->position + add) % (TOTAL_FULL_STEPS * this->mode);
+
     return this->position;
 }
 
 uint16_t Stepper::Motor::move(uint16_t steps, uint16_t accelLimit = 20) {
     if (steps == 0) return this->position;
 
+    #if DEBUG_FIRMWARE
+    Serial << "Moving stepper " << steps << " steps.\n";
+    #endif
+
     digitalWrite(dir, this->clockwise);
 
-    // assume we're stopped, set lowest supported speed
-    uint16_t currentSpeed = 4000;
-    uint16_t targetSpeed = 5000 - this->speed;
+    const uint16_t minDelay = 1000;
+    const uint16_t maxDelay = 4000;
+    uint16_t targetDelay = maxDelay - this->speed;
+    if (targetDelay < minDelay) targetDelay = minDelay;
 
-    // acceleration phase
-    for (uint16_t i = 0; i < steps / 2; ++i) {
+    uint16_t accelSteps = steps / 3;
+    uint16_t decelSteps = steps / 3;
+    uint16_t constSteps = steps - accelSteps - decelSteps;
+
+    uint16_t currentDelay = maxDelay;
+
+    auto pulse = [&]() {
         digitalWrite(step, HIGH);
-        delayMicroseconds(currentSpeed);
+        delayMicroseconds(currentDelay);
         digitalWrite(step, LOW);
-        delayMicroseconds(currentSpeed);
-        if (currentSpeed > (5000 - this->speed * 2)) {
-            currentSpeed -= accelLimit;
+        delayMicroseconds(currentDelay);
+    };
+
+    for (uint16_t i = 0; i < accelSteps; ++i) {
+        pulse();
+        if (currentDelay > targetDelay + accelLimit) {
+            currentDelay -= accelLimit;
+        } else {
+            currentDelay = targetDelay;
         }
     }
 
-    // constant phase
-    for (uint16_t i = steps / 2; i < (steps - steps / 2); ++i) {
-        digitalWrite(step, HIGH);
-        delayMicroseconds(currentSpeed);
-        digitalWrite(step, LOW);
-        delayMicroseconds(currentSpeed);
+    currentDelay = targetDelay;
+    for (uint16_t i = 0; i < constSteps; ++i) {
+        pulse();
     }
 
-    // deceleration phase
-    for (uint16_t i = (steps - steps / 2); i < steps; ++i) {
-        digitalWrite(step, HIGH);
-        delayMicroseconds(currentSpeed);
-        digitalWrite(step, LOW);
-        delayMicroseconds(currentSpeed);
-        if (currentSpeed < (5000 - this->speed)) {
-            currentSpeed += accelLimit;
+    // Deceleration phase: ramp delay back up toward maxDelay
+    for (uint16_t i = 0; i < decelSteps; ++i) {
+        pulse();
+        if (currentDelay < maxDelay - accelLimit) {
+            currentDelay += accelLimit;
+        } else {
+            currentDelay = maxDelay;
         }
     }
 
@@ -99,6 +116,10 @@ uint16_t Stepper::Motor::normalizeStep() {
     this->position = newPosition;
     this->normalizeRotation();
 
+    #if DEBUG_FIRMWARE
+    Serial << "Moved stepper to normalize\n";
+    #endif
+
     return this->position;
 }
 
@@ -124,6 +145,11 @@ uint16_t Stepper::Motor::setStepMode(uint8_t mode) {
     this->position *= mode;
     this->mode = mode;
     this->normalizeRotation();
+
+    #if DEBUG_FIRMWARE
+    Serial << "Set step mode, has mux ownership\n";
+    #endif
+
     return this->position;
 }
 
@@ -132,6 +158,7 @@ uint16_t Stepper::Motor::releaseStepMode() {
 
     uint16_t newStep = this->normalizeStep();
 
+    Multiplexer::takeOwnership(this->muxRequester, OUTPUT);
     Multiplexer::selectChannel(this->muxRequester, this->ms1);
     Multiplexer::write(this->muxRequester, LOW);
     Multiplexer::selectChannel(this->muxRequester, this->ms2);
@@ -141,16 +168,25 @@ uint16_t Stepper::Motor::releaseStepMode() {
     this->position = (newStep / this->mode);
     this->normalizeRotation();
 
+    #if DEBUG_FIRMWARE
+    Serial << "Released step mode & mux ownership\n";
+    #endif
+
     return this->position;
 }
 
 bool Stepper::Motor::setDirection(bool clockwise) {
     this->clockwise = clockwise;
     digitalWrite(dir, this->clockwise);
+
+    return this->clockwise;
 }
 
 void Stepper::Motor::stop() {
     digitalWrite(step, LOW);
+    #if DEBUG_FIRMWARE
+    Serial << "Forced stopped motor, pos data may be inaccurate\n";
+    #endif
 }
 
 void Stepper::Motor::resetPosition() {

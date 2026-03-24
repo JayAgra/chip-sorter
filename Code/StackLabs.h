@@ -10,6 +10,7 @@
 
 #include "Buttons.h"
 #include "ColorSensor.h"
+#include "Environment.h"
 #include "LCD.h"
 #include "Locale.h"
 #include "Multiplexer.h"
