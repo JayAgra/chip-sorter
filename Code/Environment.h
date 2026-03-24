@@ -12,7 +12,7 @@
 #define FIRMWARE 100
 #define SOFTWARE 100
 
-#define DEBUG_FIRMWARE true
+#define DEBUG_FIRMWARE false
 
 #if DEBUG_FIRMWARE
 

@@ -6,7 +6,6 @@
 //
 
 #include "Buttons.h"
-#include "Multiplexer.h"
 
 static const uint8_t MUX_ID = 1;
 static unsigned long startTimes[4];
@@ -31,8 +30,8 @@ namespace StackLabs {
                     int8_t buttonValue = Multiplexer::read(MUX_ID);
 
                     #if DEBUG_FIRMWARE
-                    Serial << "Value of button " << i << ": " << buttonValue
-                           << "\n";
+                    // Serial << "Value of button " << i << ": " << buttonValue
+                    //        << "\n";
                     #endif
                     
                     switch (buttonValue) {

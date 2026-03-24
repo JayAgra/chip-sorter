@@ -8,6 +8,8 @@
 #ifndef MULTIPLEXER_H
 #define MULTIPLEXER_H
 
+#include "Environment.h"
+
 #include <Arduino.h>
 
 namespace StackLabs {

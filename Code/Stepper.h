@@ -8,6 +8,9 @@
 #ifndef STEPPER_H
 #define STEPPER_H
 
+#include "Environment.h"
+#include "Multiplexer.h"
+
 #include <Arduino.h>
 
 static const uint8_t TOTAL_FULL_STEPS = 200;

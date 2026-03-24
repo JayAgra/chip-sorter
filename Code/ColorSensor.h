@@ -8,6 +8,8 @@
 #ifndef COLORSENSOR_H
 #define COLORSENSOR_H
 
+#include "Environment.h"
+
 #include <Adafruit_TCS34725.h>
 
 namespace StackLabs {

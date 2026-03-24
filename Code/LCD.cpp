@@ -7,6 +7,7 @@
 
 #include "LCD.h"
 
+
 static const uint8_t CHAR_EUR[8] PROGMEM = {
     0b00111,
     0b01000,

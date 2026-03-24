@@ -8,6 +8,9 @@
 #ifndef BUTTONS_H
 #define BUTTONS_H
 
+#include "Multiplexer.h"
+#include "Environment.h"
+
 #include <avr/pgmspace.h>
 
 static const uint16_t LONG_PRESS = 750;

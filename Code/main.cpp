@@ -11,7 +11,7 @@ using namespace StackLabs;
 
 void setup() {
     StackLabs::setup();
-    Serial.println("HELLO");
+    Serial.println("hello from main.cpp");
     Stepper::Stepper1.setSpeed(2000);
     Stepper::Stepper2.setSpeed(2000);
 }

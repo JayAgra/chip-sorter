@@ -6,9 +6,6 @@
 //
 
 #include "Stepper.h"
-#include "Multiplexer.h"
-
-#include <Arduino.h>
 
 using namespace StackLabs;
 
