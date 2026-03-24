@@ -8,7 +8,7 @@
 #ifndef LCD_H
 #define LCD_H
 
-#include "StackLabs.h"
+#include "Locale.h"
 
 #include <LiquidCrystal_I2C.h>
 

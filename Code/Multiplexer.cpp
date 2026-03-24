@@ -7,8 +7,6 @@
 
 #include "Multiplexer.h"
 
-#include <Arduino.h>
-
 static const int MUX_SIGNAL = A0;
 static const int MUX_CONTROL[] = {10, 11, 12, 13};
 

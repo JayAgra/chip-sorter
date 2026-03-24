@@ -9,8 +9,6 @@
 
 #include "Locale.h"
 
-#include <avr/pgmspace.h>
-
 //         STRING ID                  STRING
 static const char _OUT[]           PROGMEM = "OUT";
 static const char _INV[]           PROGMEM = "INV";

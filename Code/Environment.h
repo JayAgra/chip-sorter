@@ -5,10 +5,6 @@
 //  Created by Jayen Agrawal on 3/24/26.
 //
 
-#include "StackLabs.h"
-
-#include <Arduino.h>
-
 #ifndef ENVIRONMENT_H
 #define ENVIRONMENT_H
 
@@ -20,8 +16,10 @@
 
 #if DEBUG_FIRMWARE
 
-template<typename T>
-Print& operator<<(Print& p, T value);
+#include <Arduino.h>
+
+Print& operator<<(Print& p, const char *value);
+Print& operator<<(Print& p, int value);
 
 #endif
 

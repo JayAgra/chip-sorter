@@ -6,8 +6,7 @@
 //
 
 #include "Buttons.h"
-
-#include <avr/pgmspace.h>
+#include "Multiplexer.h"
 
 static const uint8_t MUX_ID = 1;
 static unsigned long startTimes[4];

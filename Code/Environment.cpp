@@ -7,12 +7,14 @@
 
 #include "Environment.h"
 
-#include <Arduino.h>
-
 #if DEBUG_FIRMWARE
 
-template<typename T>
-Print& operator<<(Print& p, T value) {
+Print& operator<<(Print& p, const char *value) {
+    p.print(value);
+    return p;
+}
+
+Print& operator<<(Print& p, int value) {
     p.print(value);
     return p;
 }

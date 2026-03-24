@@ -7,8 +7,6 @@
 
 #include "ColorSensor.h"
 
-#include <Adafruit_TCS34725.h>
-
 static const uint8_t COLOR_THRESHOLD = 15;
 static const uint8_t BLACK_THRESHOLD = 25;
 static const uint8_t BLACK_MAXIMUM = 100;

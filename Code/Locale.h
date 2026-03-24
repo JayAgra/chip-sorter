@@ -8,8 +8,6 @@
 #ifndef LOCALE_H
 #define LOCALE_H
 
-#include "StackLabs.h"
-
 #include <avr/pgmspace.h>
 
 static const uint8_t SCREEN_COUNT = 15;
