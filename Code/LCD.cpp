@@ -7,7 +7,6 @@
 
 #include "LCD.h"
 
-
 static const uint8_t CHAR_EUR[8] PROGMEM = {
     0b00111,
     0b01000,
@@ -126,16 +125,16 @@ static void writeButtons(uint8_t btnOffset) {
     lcd.setCursor(0, 3);
 
     for (uint8_t i = 0; i < 4; ++i) {
-        StackLabs::Locale::Button btn;
+        Button btn;
         memcpy_P(
             &btn,
-            &StackLabs::Locale::BTN_TABLE[btnOffset + i],
+            &BTN_TABLE[btnOffset + i],
             sizeof(btn)
         );
         
         if (btn.width == 0) continue;
 
-        const char *strPtr = StackLabs::Locale::getString(btn.stringID);
+        const char *strPtr = get_string(btn.stringID);
         // calculate dimensions of button and pad as needed
         uint8_t labelLen = lenPROGMEM(strPtr);
         uint8_t inner = btn.width - 2;
@@ -155,8 +154,8 @@ static void writeButtons(uint8_t btnOffset) {
 
 static void writeRow(uint8_t rowOffset, uint8_t lcdRow) {
     // get the row info from PROGMEM
-    StackLabs::Locale::Row rd;
-    memcpy_P(&rd, &StackLabs::Locale::ROW_TABLE[rowOffset], sizeof(rd));
+    Row rd;
+    memcpy_P(&rd, &ROW_TABLE[rowOffset], sizeof(rd));
 
     // nothing to print, return
     if (rd.stringID == 0xFF) {
@@ -165,10 +164,10 @@ static void writeRow(uint8_t rowOffset, uint8_t lcdRow) {
 
     // set cursor and write from PROGMEM
     lcd.setCursor(rd.label, lcdRow);
-    writePROGMEM(StackLabs::Locale::getString(rd.stringID));
+    writePROGMEM(get_string(rd.stringID));
 }
 
-bool runStateCheck(uint8_t state) {
+static bool runStateCheck(uint8_t state) {
     if (state >= SCREEN_COUNT) {
         #if DEBUG_FIRMWARE
         Serial << "Invalid state provided: " << state << "\n";
@@ -176,6 +175,30 @@ bool runStateCheck(uint8_t state) {
         return false; 
     }
 
+    return true;
+}
+
+static bool setFillPos(uint8_t state, uint8_t rowIndex, uint8_t slotIndex) {
+    if (!runStateCheck(state)) return false;
+    if (rowIndex >= 3 || slotIndex >= 4) {
+        #if DEBUG_FIRMWARE
+        Serial << "Invalid row/slot: Row " << rowIndex << ", Slot "
+               << slotIndex << "\n";
+        #endif
+        return false;
+    }
+
+    Row row;
+    memcpy_P(
+        &row,
+        &ROW_TABLE[(state * 3) + rowIndex],
+        sizeof(row)
+    );
+
+    uint8_t col = row.write[slotIndex];
+    if (col == 0xFF) return false;
+
+    lcd.setCursor(col, rowIndex);
     return true;
 }
 
@@ -207,28 +230,19 @@ namespace StackLabs {
             uint8_t slotIndex,
             const char* value
         ) {
-            // ensure all values are  in range
-            if (!runStateCheck(state)) return;
-            if (rowIndex >= 3 || slotIndex >= 4) {
-                #if DEBUG_FIRMWARE
-                Serial << "Invalid row/slot: Row " << rowIndex << ", Slot "
-                       << slotIndex << "\n";
-                #endif
-                return;
-            }
+            if (!setFillPos(state, rowIndex, slotIndex)) return;
+            
+            lcd.print(value);
+        }
 
-            // get the row description from memory
-            StackLabs::Locale::Row row;
-            memcpy_P(
-                &row,
-                &StackLabs::Locale::ROW_TABLE[(state * 3) + rowIndex],
-                sizeof(row)
-            );
+        void fillValue(
+            uint8_t state,
+            uint8_t rowIndex,
+            uint8_t slotIndex,
+            uint8_t value
+        ) {
+            if (!setFillPos(state, rowIndex, slotIndex)) return;
 
-            uint8_t col = row.write[slotIndex];
-            if (col == 0xFF) return;
-
-            lcd.setCursor(col, rowIndex);
             lcd.print(value);
         }
     }

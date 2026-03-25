@@ -127,17 +127,17 @@ uint16_t Stepper::Motor::setStepMode(uint8_t mode) {
 
     uint16_t newStep = this->normalizeStep();
 
-    Multiplexer::takeOwnership(this->muxRequester, OUTPUT);
+    take_mux_ownership(this->muxRequester, OUTPUT);
     if (mode == 2) {
-        Multiplexer::selectChannel(this->muxRequester, this->ms2);
-        Multiplexer::write(this->muxRequester, LOW);
-        Multiplexer::selectChannel(this->muxRequester, this->ms1);
+        select_mux_channel(this->muxRequester, this->ms2);
+        write_mux(this->muxRequester, LOW);
+        select_mux_channel(this->muxRequester, this->ms1);
     } else {
-        Multiplexer::selectChannel(this->muxRequester, this->ms1);
-        Multiplexer::write(this->muxRequester, LOW);
-        Multiplexer::selectChannel(this->muxRequester, this->ms2);
+        select_mux_channel(this->muxRequester, this->ms1);
+        write_mux(this->muxRequester, LOW);
+        select_mux_channel(this->muxRequester, this->ms2);
     }
-    Multiplexer::write(this->muxRequester, HIGH);
+    write_mux(this->muxRequester, HIGH);
 
     this->position = (newStep / this->mode);
     this->position *= mode;
@@ -156,12 +156,12 @@ uint16_t Stepper::Motor::releaseStepMode() {
 
     uint16_t newStep = this->normalizeStep();
 
-    Multiplexer::takeOwnership(this->muxRequester, OUTPUT);
-    Multiplexer::selectChannel(this->muxRequester, this->ms1);
-    Multiplexer::write(this->muxRequester, LOW);
-    Multiplexer::selectChannel(this->muxRequester, this->ms2);
-    Multiplexer::write(this->muxRequester, LOW);
-    Multiplexer::releaseOwnership(this->muxRequester);
+    take_mux_ownership(this->muxRequester, OUTPUT);
+    select_mux_channel(this->muxRequester, this->ms1);
+    write_mux(this->muxRequester, LOW);
+    select_mux_channel(this->muxRequester, this->ms2);
+    write_mux(this->muxRequester, LOW);
+    release_mux_ownership(this->muxRequester);
 
     this->position = (newStep / this->mode);
     this->normalizeRotation();

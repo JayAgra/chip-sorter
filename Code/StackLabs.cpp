@@ -16,7 +16,7 @@ namespace StackLabs {
                << "\n";
         #endif
         LCD::setup();
-        Multiplexer::setup();
+        setup_mux();
         Stepper::setupBothSteppers();
         ColorSensor::setup();
     }

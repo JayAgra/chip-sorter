@@ -25,32 +25,32 @@ namespace StackLabs {
         void readColor();
 
         /**
-         * @brief   Gets the most recent green value.
+         * @brief   Gets the most recent green value. Internal use only.
          * 
          * @return  Most recent green value.
         */
-        uint8_t getRed();
+        static uint8_t getRed();
 
         /**
-         * @brief   Gets the most recent red value.
+         * @brief   Gets the most recent red value. Internal use only.
          * 
          * @return  Most recent red value.
         */
-        uint8_t getGreen();
+        static uint8_t getGreen();
 
         /**
-         * @brief   Gets the most recent blue value.
+         * @brief   Gets the most recent blue value. Internal use only.
          * 
          * @return  Most recent blue value.
         */
-        uint8_t getBlue();
+        static uint8_t getBlue();
 
         /**
-         * @brief   Gets the most recent clear value.
+         * @brief   Gets the most recent clear value. Internal use only.
          * 
          * @return  Most recent clear value.
         */
-        uint8_t getClear();
+        static uint8_t getClear();
 
         /**
          * @brief   Calculates the most likely poker chip being scanned.

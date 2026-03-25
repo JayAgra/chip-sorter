@@ -50,6 +50,17 @@ namespace StackLabs {
             uint8_t slot,
             const char *value
         );
+
+        /**
+         * @brief   Overload to allow uint8_t to be printed without use of an
+         *          additional buffer. See docs for 'const char' value type.
+        */
+        void fillValue(
+            uint8_t state,
+            uint8_t row,
+            uint8_t slot,
+            uint8_t value
+        );
     }
 }
 

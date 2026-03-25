@@ -17,7 +17,7 @@ namespace StackLabs {
 
             // wait until we own the multiplexer
             while (!muxOwnership) {
-                muxOwnership = Multiplexer::takeOwnership(MUX_ID, 0x2);
+                muxOwnership = take_mux_ownership(MUX_ID, 0x2);
                 #if DEBUG_FIRMWARE
                 Serial << "Mux ownership status:  " << muxOwnership << "\n";
                 #endif
@@ -26,8 +26,8 @@ namespace StackLabs {
 
             while (true) {
                 for (int i = 0; i < 4; ++i) {
-                    Multiplexer::selectChannel(MUX_ID, i + 8);
-                    int8_t buttonValue = Multiplexer::read(MUX_ID);
+                    select_mux_channel(MUX_ID, i + 8);
+                    int8_t buttonValue = read_mux(MUX_ID);
 
                     #if DEBUG_FIRMWARE
                     // Serial << "Value of button " << i << ": " << buttonValue
@@ -50,7 +50,7 @@ namespace StackLabs {
                             startTimes[i] = 0;
                             // try to ignore noise
                             if (pressLength > 20) {
-                                Multiplexer::releaseOwnership(MUX_ID);
+                                release_mux_ownership(MUX_ID);
                                 Press tmp = Press();
                                 // flip least significant digit to map pin no.
                                 tmp.button = i ^ 2;

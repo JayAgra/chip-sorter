@@ -45,22 +45,22 @@ namespace StackLabs {
             #endif
         }
 
-        uint8_t getRed() {
+        static uint8_t getRed() {
             return uint8_t(map(max(min(red, RED_WHITE), RED_BLACK),
                     RED_BLACK, RED_WHITE, 0, 255));
         }
 
-        uint8_t getGreen() {
+        static uint8_t getGreen() {
             return uint8_t(map(max(min(green, GREEN_WHITE), GREEN_BLACK),
                     GREEN_BLACK, GREEN_WHITE, 0, 255));
         }
 
-        uint8_t getBlue() {
+        static uint8_t getBlue() {
             return uint8_t(map(max(min(blue, BLUE_WHITE), BLUE_BLACK),
                     BLUE_BLACK, BLUE_WHITE, 0, 255));
         }
 
-        uint8_t getClear() {
+        static uint8_t getClear() {
             return uint8_t(map(max(min(clear, CLEAR_WHITE), CLEAR_BLACK),
                     CLEAR_BLACK, CLEAR_WHITE, 0, 255));
         }
