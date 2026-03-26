@@ -15,25 +15,13 @@ static uint8_t owner = 0;
 static uint8_t mode = 0x1;
 
 static bool run_auth_check(uint8_t requester) {
-    if (requester != owner) {
-        #if DEBUG_FIRMWARE
-        Serial << "Requester unauthorized\n";
-        #endif
-        return false;
-    }
+    if (requester != owner) return false;
 
     return true;
 }
 
 static bool run_operation_check(bool write) {
-    if ((mode != 0x1) == write) {
-        #if DEBUG_FIRMWARE
-        Serial << "Mode incompatible with operation\n";
-        #endif
-        return false;
-    }
-    
-    return true;
+    return !((mode != 0x1) == write);
 }
 
 void setup_mux() {
@@ -50,11 +38,6 @@ bool take_mux_ownership(uint8_t requester, uint8_t setMode) {
         pinMode(MUX_SIGNAL, mode);
         return true;
     }
-    
-    #if DEBUG_FIRMWARE
-    Serial << "Ownership request from " << requester << " rejected; "
-            << owner << " is the owner\n";
-    #endif
 
     return false;
 }
@@ -68,12 +51,7 @@ bool release_mux_ownership(uint8_t requester) {
 
 bool select_mux_channel(uint8_t requester, uint8_t channel) {
     if (!run_auth_check(requester)) return false;
-    if (channel > 15) {
-        #if DEBUG_FIRMWARE
-        Serial << "Invalid channel requested [0, 15]\n";
-        #endif
-        return false;
-    }
+    if (channel > 15) return false;
 
     for (int i = 0; i < 4; ++i) {
         uint8_t value = (channel >> i) & 1;
