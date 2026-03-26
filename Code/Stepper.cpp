@@ -9,8 +9,8 @@
 
 using namespace StackLabs;
 
-Stepper::Motor Stepper::Stepper1(2, 3, 7, 6, 0, 1, 2);
-Stepper::Motor Stepper::Stepper2(4, 5, 9, 8, 3, 4, 3);
+Stepper::Motor Stepper::Stepper1(2, 3, 8, 6, 0, 1, 2);
+Stepper::Motor Stepper::Stepper2(4, 5, 9, 7, 3, 4, 3);
 
 void Stepper::Motor::setup() {
     pinMode(step, OUTPUT);
