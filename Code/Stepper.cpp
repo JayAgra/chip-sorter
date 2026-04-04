@@ -27,7 +27,7 @@ void Stepper::Motor::setup() {
 
 uint16_t Stepper::Motor::setSpeed(uint16_t speed) {
     // im just guessing on speed will test in a bit
-    if (speed <= 4000) {
+    if (speed <= 4000 && speed >= 500) {
         this->speed = speed;
     }
 
@@ -49,13 +49,20 @@ uint16_t Stepper::Motor::move(uint16_t steps, uint16_t accelLimit = 20) {
 
     digitalWrite(dir, this->clockwise);
 
-    const uint16_t minDelay = 1000;
+    // for (int i = 0; i < steps; i++) {
+    //     digitalWrite(step, HIGH);
+    //     delayMicroseconds(this->speed);
+    //     digitalWrite(step, LOW);
+    //     delayMicroseconds(this->speed);
+    // }
+
+    const uint16_t minDelay = 500;
     const uint16_t maxDelay = 4000;
-    uint16_t targetDelay = maxDelay - this->speed;
+    uint16_t targetDelay = this->speed;
     if (targetDelay < minDelay) targetDelay = minDelay;
 
-    uint16_t accelSteps = steps / 3;
-    uint16_t decelSteps = steps / 3;
+    uint16_t accelSteps = steps / 4;
+    uint16_t decelSteps = steps / 4;
     uint16_t constSteps = steps - accelSteps - decelSteps;
 
     uint16_t currentDelay = maxDelay;
@@ -92,6 +99,8 @@ uint16_t Stepper::Motor::move(uint16_t steps, uint16_t accelLimit = 20) {
     }
 
     this->normalizeRotation(steps);
+
+    this->stop();
 
     return this->position;
 }
@@ -189,7 +198,7 @@ void Stepper::Motor::stop() {
 
 void Stepper::Motor::resetPosition() {
     digitalWrite(reset, LOW);
-    delayMicroseconds(10);
+    delayMicroseconds(1);
     digitalWrite(reset, HIGH);
 }
 
