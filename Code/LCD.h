@@ -24,6 +24,18 @@ namespace StackLabs {
         void setup();
 
         /**
+         * @brief   Clears the LCD screen.
+        */
+        void clear();
+        
+        /**
+         * @brief   Changes the backlight mode.
+         * 
+         * @param   enable  Enable or disable? true = on.
+        */
+        void backlight(bool enable);
+
+        /**
          * @brief   Prints a blank UI according to the state ID. Please see
          *          ui.txt for the state IDs.
          * 
@@ -61,6 +73,16 @@ namespace StackLabs {
             uint8_t slot,
             uint8_t value
         );
+
+        /**
+         * @brief   Fills variable content buttons (with currency values). Only
+         *          works for a row of four buttons.
+         * 
+         * @param   value       Value to fill. Must be 3 characters. Unchecked
+         *                      lol just fucks shit up if it is not.
+         * @param   buttonIndex Index of the button to write to, (0, 3).
+        */
+       void fillButtonValue(const char *value, uint8_t buttonIndex);
     }
 }
 

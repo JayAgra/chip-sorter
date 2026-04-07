@@ -55,8 +55,8 @@ namespace StackLabs {
         /**
          * @brief   Calculates the most likely poker chip being scanned.
          * 
-         * @return  Integer representing the poker chip. 0 = None, 1 = Black,
-         *          2 = Red, 3 = Green, 4 = Blue.
+         * @return  Integer representing the poker chip. 0 = Red, 1 = Green,
+         *          2 = Blue, 3 = Black, 4 = None.
         */
         uint8_t calculateMatch();
     }

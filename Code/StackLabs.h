@@ -9,6 +9,7 @@
 #define STACKLABS_H
 
 #include "Buttons.h"
+#include "ChipCounts.h"
 #include "ColorSensor.h"
 #include "Data.h"
 #include "Environment.h"

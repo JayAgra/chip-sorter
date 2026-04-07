@@ -13,6 +13,15 @@ namespace StackLabs {
             return eeprom_store_read(id);
         }
 
+        uint8_t readOr(uint8_t id, uint8_t fallback) {
+            uint8_t readValue = eeprom_store_read(id);
+            if (readValue == 0xFF) {
+                eeprom_store_safe_write(id, fallback, true);
+                return fallback;
+            }
+            return readValue;
+        }
+
         bool write(uint8_t id, uint8_t value, bool allowOverwrites) {
             return eeprom_store_safe_write(id, value, allowOverwrites);
         }

@@ -68,18 +68,18 @@ namespace StackLabs {
         uint8_t calculateMatch() {
             if (getRed() > getGreen() + COLOR_THRESHOLD &&
                 getRed() > getBlue() + COLOR_THRESHOLD) {
-                return 2;
+                return 0;
             } else if (getGreen() > getRed() + COLOR_THRESHOLD &&
                 getGreen() > getBlue() + COLOR_THRESHOLD) {
-                return 3;
+                return 1;
             } else if (getBlue() > getRed() + COLOR_THRESHOLD &&
                 getBlue() > getGreen() + COLOR_THRESHOLD) {
-                return 4;
+                return 2;
             } else if (getClear() > BLACK_THRESHOLD &&
                 getClear() < BLACK_MAXIMUM) {
-                return 1;
+                return 3;
             }
-            return 0;
+            return 4;
         }
     }
 }

@@ -81,12 +81,13 @@ static void createChar(uint8_t slot, const uint8_t* character) {
 }
 
 static void createCharacters() {
-    createChar(0, CHAR_EUR);
-    createChar(1, CHAR_GBP);
-    createChar(2, CHAR_JPY);
-    createChar(3, CHAR_CHF);
-    createChar(4, CHAR_LEFT);
-    createChar(5, CHAR_RIGHT);
+    // character zero behaves weird for some reason
+    createChar(1, CHAR_EUR);
+    createChar(2, CHAR_GBP);
+    createChar(3, CHAR_JPY);
+    createChar(4, CHAR_CHF);
+    createChar(5, CHAR_LEFT);
+    createChar(6, CHAR_RIGHT);
     #if DEBUG_FIRMWARE
     Serial << "Wrote LCD customs\n";
     #endif
@@ -206,10 +207,23 @@ namespace StackLabs {
     namespace LCD {
         void setup() {
             lcd.init();
-            lcd.clear();
-            lcd.backlight();
-            lcd.setCursor(0, 0);
             createCharacters();
+            lcd.clear();
+            lcd.setCursor(0, 0);
+            lcd.backlight();
+        }
+
+        void clear() {
+            lcd.clear();
+            lcd.setCursor(0, 0);
+        }
+
+        void backlight(bool enabled) {
+            if (enabled) {
+                lcd.backlight();
+            } else {
+                lcd.noBacklight();
+            }
         }
 
         void printEmptyState(uint8_t state) {
@@ -243,6 +257,13 @@ namespace StackLabs {
         ) {
             if (!setFillPos(state, rowIndex, slotIndex)) return;
 
+            lcd.print(value);
+        }
+
+        void fillButtonValue(const char *value, uint8_t buttonIndex) {
+            if (buttonIndex > 3) return;
+
+            lcd.setCursor((buttonIndex * 5) + 1, 3);
             lcd.print(value);
         }
     }

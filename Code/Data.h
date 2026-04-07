@@ -22,6 +22,18 @@ namespace StackLabs {
         uint8_t read(uint8_t id);
 
         /**
+         * @brief   Read the value stored in EEPROM at id. If there is no data,
+         *          or if the data is 0xFF, returns the fallback. Also writes
+         *          the fallback value into EEPROM if the data does not exist.
+         * 
+         * @param   id          ID of data, [0, 63].
+         * @param   fallback    Fallback in case data is null or 0xFF.
+         * 
+         * @return  Value of data, or fallback if no data.
+        */
+       uint8_t readOr(uint8_t id, uint8_t fallback);
+
+        /**
          * @brief   Writes data to EEPROM at an ID.
          * 
          * @param   id              ID to write at.
