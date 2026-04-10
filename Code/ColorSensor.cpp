@@ -11,14 +11,14 @@ static const uint8_t COLOR_THRESHOLD = 15;
 static const uint8_t BLACK_THRESHOLD = 25;
 static const uint8_t BLACK_MAXIMUM = 100;
 
-static const uint16_t RED_WHITE = 2200;
-static const uint16_t RED_BLACK = 100;
-static const uint16_t GREEN_WHITE = 1800;
-static const uint16_t GREEN_BLACK = 75;
-static const uint16_t BLUE_WHITE = 1300;
-static const uint16_t BLUE_BLACK = 40;
-static const uint16_t CLEAR_WHITE = 6000;
-static const uint16_t CLEAR_BLACK = 150;
+static const uint16_t RED_WHITE = 15;
+static const uint16_t RED_BLACK = 927;
+static const uint16_t GREEN_WHITE = 22;
+static const uint16_t GREEN_BLACK = 950;
+static const uint16_t BLUE_WHITE = 130;
+static const uint16_t BLUE_BLACK = 800;
+static const uint16_t CLEAR_WHITE = 21;
+static const uint16_t CLEAR_BLACK = 750;
 
 static Adafruit_TCS34725 sensor = 
     Adafruit_TCS34725(TCS34725_INTEGRATIONTIME_101MS, TCS34725_GAIN_1X);
@@ -42,27 +42,27 @@ namespace StackLabs {
             #if DEBUG_FIRMWARE
             Serial << "Color sensor read: \n\tR: " << red << "\n\tG: " << green
                    << "\n\tB: " << blue << "\n\tC: " << clear << "\n";
-            #endif
+             #endif
         }
 
         static uint8_t getRed() {
-            return uint8_t(map(max(min(red, RED_WHITE), RED_BLACK),
-                    RED_BLACK, RED_WHITE, 0, 255));
+            return uint8_t(map(min(max(red, RED_WHITE), RED_BLACK),
+                    RED_WHITE, RED_BLACK, 0, 255));
         }
 
         static uint8_t getGreen() {
-            return uint8_t(map(max(min(green, GREEN_WHITE), GREEN_BLACK),
-                    GREEN_BLACK, GREEN_WHITE, 0, 255));
+            return uint8_t(map(min(max(green, GREEN_WHITE), GREEN_BLACK),
+                    GREEN_WHITE, GREEN_BLACK, 0, 255));
         }
 
         static uint8_t getBlue() {
-            return uint8_t(map(max(min(blue, BLUE_WHITE), BLUE_BLACK),
-                    BLUE_BLACK, BLUE_WHITE, 0, 255));
+            return uint8_t(map(min(max(blue, BLUE_WHITE), BLUE_BLACK),
+                    BLUE_WHITE, BLUE_BLACK, 0, 255));
         }
 
         static uint8_t getClear() {
-            return uint8_t(map(max(min(clear, CLEAR_WHITE), CLEAR_BLACK),
-                    CLEAR_BLACK, CLEAR_WHITE, 0, 255));
+            return uint8_t(map(min(max(clear, CLEAR_WHITE), CLEAR_BLACK),
+                    CLEAR_WHITE, CLEAR_BLACK, 0, 255));
         }
 
         uint8_t calculateMatch() {

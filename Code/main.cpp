@@ -20,13 +20,13 @@ using namespace StackLabs;
 
 // Top disc: steps from home to each tube drop position.
 // Order: RED(0), GREEN(1), BLUE(2), BLACK(3)
-#define TOP_STEPS_RED        0
-#define TOP_STEPS_GREEN      50
-#define TOP_STEPS_BLUE       100
-#define TOP_STEPS_BLACK      150
+#define TOP_STEPS_RED        50
+#define TOP_STEPS_GREEN      100
+#define TOP_STEPS_BLUE       150
+#define TOP_STEPS_BLACK      200
 
 // Extra steps past the tube before reversing to drop the chip.
-#define TOP_OVERSHOOT        20
+#define TOP_OVERSHOOT        50
 
 // Bottom disc: steps from home to align under each tube.
 #define BOT_STEPS_RED        0
@@ -56,8 +56,6 @@ static uint8_t chipCounts[4];
 static uint8_t dispenseRequest[4];
 static uint8_t currencyID;
 static uint8_t valueSetID;
-static uint8_t backlightOn;
-static uint8_t sleepSecs;
 static uint8_t uiState;
 
 static uint32_t computeTotal(const uint8_t counts[4]) {
@@ -219,11 +217,17 @@ static const uint16_t BOT_TUBE_STEPS[4] = {
 };
 
 static void homeTopDisc() {
-    Stepper::Stepper1.resetPosition();
-    if (TOP_HOME_OFFSET > 0) {
-        Stepper::Stepper1.setDirection(true);
-        Stepper::Stepper1.move(TOP_HOME_OFFSET, TOP_ACCEL);
+    Stepper::Stepper1.setDirection(false);
+    ColorSensor::readColor();
+    lcd.setCursor(0, 0);
+    lcd.print(ColorSensor::calculateMatch());
+    while (ColorSensor::calculateMatch() == 4) {
+        lcd.setCursor(0, 0);
+        lcd.print(ColorSensor::calculateMatch());
+        ColorSensor::readColor();
+        Stepper::Stepper1.move(10, 20);
     }
+    Stepper::Stepper1.move(45);
 }
 
 static void homeBotDisc() {
@@ -238,19 +242,23 @@ static void homeBotDisc() {
 static uint8_t sortOneChip() {
     ColorSensor::readColor();
     uint8_t color = ColorSensor::calculateMatch();
+
     if (color == 4) return 0xFF;
 
+    lcd.setCursor(0,0);
+    lcd.print(color);
+    
     uint8_t  tube       = color - 1;
     uint16_t tubeSteps  = TOP_TUBE_STEPS[tube];
     uint16_t totalSteps = tubeSteps + TOP_OVERSHOOT;
 
-    Stepper::Stepper1.setDirection(true);
+    Stepper::Stepper1.setDirection(false);
     Stepper::Stepper1.move(totalSteps, TOP_ACCEL);
 
-    Stepper::Stepper1.setDirection(false);
+    Stepper::Stepper1.setDirection(true);
     Stepper::Stepper1.move(TOP_OVERSHOOT, TOP_ACCEL);
 
-    Stepper::Stepper1.setDirection(false);
+    Stepper::Stepper1.setDirection(true);
     Stepper::Stepper1.move(tubeSteps, TOP_ACCEL);
 
     homeTopDisc();
@@ -283,9 +291,11 @@ static void runSortingMode() {
         }
 
         noChipStreak = 0;
-        if (chipCounts[tube] < 254) ++chipCounts[tube];
+        if (chipCounts[tube] < 0xFE) ++chipCounts[tube];
         Data::write(EEPROM_COUNT_RED + tube, chipCounts[tube], true);
     }
+
+    homeTopDisc();
 }
 
 // SHARED CHIP ROW RENDERER
@@ -492,7 +502,14 @@ static void handleSettings() {
 // STATE 7: CHIP INPUT
 static void handleChipInput() {
     LCD::printEmptyState(7);
-    delay(1000);
+    // for (uint8_t i = 0; i < 10;) {
+    //     if (sortOneChip() == 0xFF) {
+    //         ++i;
+    //     }
+    //     delay(100);
+    // }
+    // delay(1000);
+    runSortingMode();
     uiState = 0;
 }
 
@@ -657,7 +674,6 @@ static void handleOff() {
     Stepper::Stepper1.setSleep(true);
     Stepper::Stepper2.setSleep(true);
     LCD::clear();
-    LCD::backlight(false);
 
     // wake
     Buttons::Press p = Buttons::getPress();
@@ -689,10 +705,12 @@ void setup() {
     Stepper::Stepper1.setSpeed(TOP_SPEED);
     Stepper::Stepper2.setSpeed(BOT_SPEED);
 
-    homeTopDisc();
-    homeBotDisc();
-
     uiState = 0;
+
+    handleMenu();
+
+    // homeTopDisc();
+    // homeBotDisc();
 }
 
 // LOOP

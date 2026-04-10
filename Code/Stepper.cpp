@@ -198,7 +198,7 @@ void Stepper::Motor::stop() {
 
 void Stepper::Motor::resetPosition() {
     digitalWrite(reset, LOW);
-    delayMicroseconds(1);
+    delayMicroseconds(1000);
     digitalWrite(reset, HIGH);
 }
 
