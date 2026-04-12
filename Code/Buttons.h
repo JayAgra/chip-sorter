@@ -13,7 +13,9 @@
 
 #include <avr/pgmspace.h>
 
-static const uint16_t LONG_PRESS = 750;
+#define BUTTON_POLL_DELAY 0x1u
+#define BUTTON_NOISE_THRESHOLD 0xFu
+#define BUTTON_LONG_THRESHOLD 0x222u
 
 namespace StackLabs {
     namespace Buttons {

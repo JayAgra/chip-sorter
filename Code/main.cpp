@@ -29,19 +29,14 @@ using namespace StackLabs;
 #define TOP_OVERSHOOT        50
 
 // Bottom disc: steps from home to align under each tube.
-#define BOT_STEPS_RED        0
-#define BOT_STEPS_GREEN      50
-#define BOT_STEPS_BLUE       100
-#define BOT_STEPS_BLACK      150
+#define BOT_STEPS_RED        50
+#define BOT_STEPS_GREEN      100
+#define BOT_STEPS_BLUE       150
+#define BOT_STEPS_BLACK      200
 
-// Steps from any tube position to the output hole.
-#define BOT_STEPS_TO_OUTPUT  25
-
-// Motor speeds (µs per half-period; lower = faster). Valid range: [500, 4000].
-#define TOP_SPEED            1000
-#define BOT_SPEED            800
-#define TOP_ACCEL            30
-#define BOT_ACCEL            20
+// Motor speeds (µs per half-period; lower = faster).
+#define TOP_SPEED            600
+#define BOT_SPEED            300
 
 // EEPROM DATA
 #define EEPROM_COUNT_RED     0
@@ -217,25 +212,19 @@ static const uint16_t BOT_TUBE_STEPS[4] = {
 };
 
 static void homeTopDisc() {
-    Stepper::Stepper1.setDirection(false);
+    // Stepper::Stepper1.home();
+
+    Stepper::Stepper1.setDirection(MotorDirection::CLOCKWISE);
     ColorSensor::readColor();
-    lcd.setCursor(0, 0);
-    lcd.print(ColorSensor::calculateMatch());
     while (ColorSensor::calculateMatch() == 4) {
-        lcd.setCursor(0, 0);
-        lcd.print(ColorSensor::calculateMatch());
         ColorSensor::readColor();
-        Stepper::Stepper1.move(10, 20);
+        Stepper::Stepper1.move(5);
     }
     Stepper::Stepper1.move(45);
 }
 
 static void homeBotDisc() {
-    Stepper::Stepper2.resetPosition();
-    if (BOT_HOME_OFFSET > 0) {
-        Stepper::Stepper2.setDirection(true);
-        Stepper::Stepper2.move(BOT_HOME_OFFSET, BOT_ACCEL);
-    }
+    Stepper::Stepper2.home();
 }
 
 // SORT SEQUENCE (top disc)
@@ -248,18 +237,18 @@ static uint8_t sortOneChip() {
     lcd.setCursor(0,0);
     lcd.print(color);
     
-    uint8_t  tube       = color - 1;
-    uint16_t tubeSteps  = TOP_TUBE_STEPS[tube];
+    uint8_t  tube = color - 1;
+    uint16_t tubeSteps = TOP_TUBE_STEPS[tube];
     uint16_t totalSteps = tubeSteps + TOP_OVERSHOOT;
 
-    Stepper::Stepper1.setDirection(false);
-    Stepper::Stepper1.move(totalSteps, TOP_ACCEL);
+    Stepper::Stepper1.setDirection(MotorDirection::CLOCKWISE);
+    Stepper::Stepper1.move(tubeSteps + TOP_OVERSHOOT);
 
-    Stepper::Stepper1.setDirection(true);
-    Stepper::Stepper1.move(TOP_OVERSHOOT, TOP_ACCEL);
+    Stepper::Stepper1.setDirection(MotorDirection::COUNTERCLOCKWISE);
+    Stepper::Stepper1.move(TOP_OVERSHOOT);
 
-    Stepper::Stepper1.setDirection(true);
-    Stepper::Stepper1.move(tubeSteps, TOP_ACCEL);
+    Stepper::Stepper1.setDirection(MotorDirection::CLOCKWISE);
+    Stepper::Stepper1.move(tubeSteps);
 
     homeTopDisc();
     return tube;
@@ -267,11 +256,11 @@ static uint8_t sortOneChip() {
 
 // DISPENSE SEQUENCE (bottom disc)
 static void dispenseOneChip(uint8_t tube) {
-    Stepper::Stepper2.setDirection(true);
-    Stepper::Stepper2.move(BOT_TUBE_STEPS[tube], BOT_ACCEL);
+    Stepper::Stepper2.setDirection(MotorDirection::CLOCKWISE);
+    Stepper::Stepper2.move(BOT_TUBE_STEPS[tube]);
     delay(100);
-    Stepper::Stepper2.setDirection(true);
-    Stepper::Stepper2.move(BOT_STEPS_TO_OUTPUT, BOT_ACCEL);
+    Stepper::Stepper2.setDirection(MotorDirection::COUNTERCLOCKWISE);
+    Stepper::Stepper2.move(BOT_TUBE_STEPS[tube]);
     delay(150);
     homeBotDisc();
 }
@@ -291,7 +280,7 @@ static void runSortingMode() {
         }
 
         noChipStreak = 0;
-        if (chipCounts[tube] < 0xFE) ++chipCounts[tube];
+        if (chipCounts[tube] < 0xFF) ++chipCounts[tube];
         Data::write(EEPROM_COUNT_RED + tube, chipCounts[tube], true);
     }
 
@@ -709,8 +698,8 @@ void setup() {
 
     handleMenu();
 
-    // homeTopDisc();
-    // homeBotDisc();
+    homeTopDisc();
+    homeBotDisc();
 }
 
 // LOOP

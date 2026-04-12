@@ -10,10 +10,17 @@
 
 #include "Environment.h"
 #include "Multiplexer.h"
+#include "Data.h"
 
 #include <Arduino.h>
 
 static const uint8_t TOTAL_FULL_STEPS = 200;
+static const uint8_t EEPROM_TOP_POS = 14;
+static const uint8_t EEPROM_BOTTOM_POS = 15;
+
+enum MotorDirection {
+    CLOCKWISE = 0x1, COUNTERCLOCKWISE = 0x0
+};
 
 namespace StackLabs {
     namespace Stepper {
@@ -22,9 +29,9 @@ namespace StackLabs {
             int step, dir, sleep, reset;
             int ms1, ms2;
             uint8_t muxRequester;
-            bool clockwise;
+            uint8_t direction, id;
             uint8_t speed, mode;
-            uint16_t position;
+            int16_t position;
 
             /**
              * @brief   Normalizes step position rotation to be an offset from
@@ -45,10 +52,10 @@ namespace StackLabs {
             uint16_t normalizeStep();
         public:
             Motor(int step, int dir, int sleep, int reset, int ms1, int ms2,
-                uint8_t muxRequester): step(step), dir(dir), sleep(sleep),
-                reset(reset), ms1(ms1), ms2(ms2), clockwise(true),
-                muxRequester(muxRequester), speed(4000), position(0), mode(1)
-                {}
+                uint8_t muxRequester, uint8_t id): step(step), dir(dir),
+                sleep(sleep), reset(reset), ms1(ms1), ms2(ms2),
+                direction(CLOCKWISE), muxRequester(muxRequester), speed(0xFFu),
+                position(0), mode(1), id(id) {}
             
             /**
              * @brief   Initializes the motor.
@@ -58,7 +65,7 @@ namespace StackLabs {
             /**
              * @brief   Sets the motor speed.
              * 
-             * @param   speed   Motor rotation speed. Value [0-4000].
+             * @param   speed   Motor rotation speed. Value [250-4000].
             */
             uint16_t setSpeed(uint16_t speed);
 
@@ -71,7 +78,7 @@ namespace StackLabs {
              * 
              * @return  Current step, normalized to an offset from zero.
             */
-            uint16_t move(uint16_t steps, uint16_t accelLimit = 20);
+            uint16_t move(uint16_t steps);
 
             /**
              * @brief   Set the step mode to full, 1/2, or 1/4. Other step
@@ -101,11 +108,11 @@ namespace StackLabs {
             /**
              * @brief   Set the direction for the stepper motor to turn in.
              * 
-             * @param   clockwise   true = clockwise, false = counterclockwise.
+             * @param   clockwise   Enum for ease of use.
              * 
              * @return  true = set clockwise, false = set counterclockwise.
             */
-            bool setDirection(bool clockwise);
+            bool setDirection(MotorDirection direction);
 
             /**
              * @brief   Stops the motor where it is. Not ideal; try something
@@ -114,16 +121,22 @@ namespace StackLabs {
             void stop();
 
             /**
-             * @brief   Resets the motor position to "zero".
+             * @brief   Resets the motor controller
             */
-            void resetPosition();
+            void resetController();
+
+            /**
+             * @brief   Homes the motor to the position it was at on the first
+             *          device start.
+            */
+           void home();
 
             /**
              * @brief   Sets the sleep mode on the controller.
              * 
              * @param   sleep   true to sleep, false to wake.
             */
-           void setSleep(bool sleep);
+            void setSleep(bool sleep);
         };
 
         extern Motor Stepper1;

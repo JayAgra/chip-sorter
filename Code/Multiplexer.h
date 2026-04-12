@@ -8,6 +8,8 @@
 #ifndef MULTIPLEXER_H
 #define MULTIPLEXER_H
 
+#define MUX_OWNERSHIP_RETRY_DELAY 0xFFu
+
 #include "Environment.h"
 
 #include <Arduino.h>

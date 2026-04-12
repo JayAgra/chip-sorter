@@ -9,8 +9,8 @@
 
 using namespace StackLabs;
 
-Stepper::Motor Stepper::Stepper1(2, 3, 8, 6, 0, 1, 2);
-Stepper::Motor Stepper::Stepper2(4, 5, 9, 7, 3, 4, 3);
+Stepper::Motor Stepper::Stepper1(2, 3, 8, 6, 0, 1, 2, 0);
+Stepper::Motor Stepper::Stepper2(4, 5, 9, 7, 3, 4, 3, 1);
 
 void Stepper::Motor::setup() {
     pinMode(step, OUTPUT);
@@ -22,12 +22,14 @@ void Stepper::Motor::setup() {
     digitalWrite(reset, HIGH);
 
     this->releaseStepMode();
-    this->resetPosition();
+    this->setDirection(MotorDirection::CLOCKWISE);
+    this->setSpeed(0xFFu);
+    this->stop();
 }
 
 uint16_t Stepper::Motor::setSpeed(uint16_t speed) {
     // im just guessing on speed will test in a bit
-    if (speed <= 4000 && speed >= 500) {
+    if (speed <= 0xFAAu && speed >= 0xFAu) {
         this->speed = speed;
     }
 
@@ -35,70 +37,40 @@ uint16_t Stepper::Motor::setSpeed(uint16_t speed) {
 }
 
 uint16_t Stepper::Motor::normalizeRotation(uint16_t add = 0) {
-    this->position = (this->position + add) % (TOTAL_FULL_STEPS * this->mode);
+    if (this->direction == MotorDirection::CLOCKWISE) {
+        this->position = (this->position + add) % (TOTAL_FULL_STEPS * this->mode);
+    } else {
+        this->position = (this->position - add) % (TOTAL_FULL_STEPS * this->mode);
+    }
+
+    if (this->id == 0) Data::write(EEPROM_TOP_POS, this->position, true);
+    if (this->id == 1) Data::write(EEPROM_BOTTOM_POS, this->position, true);
 
     return this->position;
 }
 
-uint16_t Stepper::Motor::move(uint16_t steps, uint16_t accelLimit = 20) {
+uint16_t Stepper::Motor::move(uint16_t steps) {
     if (steps == 0) return this->position;
 
     #if DEBUG_FIRMWARE
     Serial << "Moving stepper " << steps << " steps.\n";
     #endif
 
-    digitalWrite(dir, this->clockwise);
-
-    // for (int i = 0; i < steps; i++) {
-    //     digitalWrite(step, HIGH);
-    //     delayMicroseconds(this->speed);
-    //     digitalWrite(step, LOW);
-    //     delayMicroseconds(this->speed);
-    // }
-
-    const uint16_t minDelay = 500;
-    const uint16_t maxDelay = 4000;
-    uint16_t targetDelay = this->speed;
-    if (targetDelay < minDelay) targetDelay = minDelay;
-
-    uint16_t accelSteps = steps / 4;
-    uint16_t decelSteps = steps / 4;
-    uint16_t constSteps = steps - accelSteps - decelSteps;
-
-    uint16_t currentDelay = maxDelay;
+    digitalWrite(dir, this->direction);
 
     auto pulse = [&]() {
         digitalWrite(step, HIGH);
-        delayMicroseconds(currentDelay);
+        delayMicroseconds(this->speed);
         digitalWrite(step, LOW);
-        delayMicroseconds(currentDelay);
+        delayMicroseconds(this->speed);
     };
 
-    for (uint16_t i = 0; i < accelSteps; ++i) {
-        pulse();
-        if (currentDelay > targetDelay + accelLimit) {
-            currentDelay -= accelLimit;
-        } else {
-            currentDelay = targetDelay;
-        }
-    }
-
-    currentDelay = targetDelay;
-    for (uint16_t i = 0; i < constSteps; ++i) {
+    for (uint16_t i = 0; i < steps; ++i) {
         pulse();
     }
 
-    // Deceleration phase: ramp delay back up toward maxDelay
-    for (uint16_t i = 0; i < decelSteps; ++i) {
-        pulse();
-        if (currentDelay < maxDelay - accelLimit) {
-            currentDelay += accelLimit;
-        } else {
-            currentDelay = maxDelay;
-        }
-    }
 
-    this->normalizeRotation(steps);
+    if (this->mode != 1) this->normalizeRotation(steps);
 
     this->stop();
 
@@ -182,11 +154,12 @@ uint16_t Stepper::Motor::releaseStepMode() {
     return this->position;
 }
 
-bool Stepper::Motor::setDirection(bool clockwise) {
-    this->clockwise = clockwise;
-    digitalWrite(dir, this->clockwise);
+bool Stepper::Motor::setDirection(MotorDirection direction) {
+    this->direction = direction;
 
-    return this->clockwise;
+    digitalWrite(dir, direction);
+
+    return direction;
 }
 
 void Stepper::Motor::stop() {
@@ -196,10 +169,15 @@ void Stepper::Motor::stop() {
     #endif
 }
 
-void Stepper::Motor::resetPosition() {
+void Stepper::Motor::resetController() {
     digitalWrite(reset, LOW);
-    delayMicroseconds(1000);
+    delayMicroseconds(100u);
     digitalWrite(reset, HIGH);
+}
+
+void Stepper::Motor::home() {
+    this->setDirection(MotorDirection::COUNTERCLOCKWISE);
+    this->move(this->position % 200u);
 }
 
 void Stepper::Motor::setSleep(bool sleep) {

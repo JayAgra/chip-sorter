@@ -21,7 +21,7 @@ namespace StackLabs {
                 #if DEBUG_FIRMWARE
                 Serial << "Mux ownership status:  " << muxOwnership << "\n";
                 #endif
-                delay(100);
+                delay(MUX_OWNERSHIP_RETRY_DELAY);
             }
 
             while (true) {
@@ -49,12 +49,12 @@ namespace StackLabs {
                                 millis() - startTimes[i];
                             startTimes[i] = 0;
                             // try to ignore noise
-                            if (pressLength > 20) {
+                            if (pressLength > BUTTON_NOISE_THRESHOLD) {
                                 release_mux_ownership(MUX_ID);
                                 Press tmp = Press();
                                 // flip least significant digit to map pin no.
                                 tmp.button = i ^ 2;
-                                tmp.held = pressLength > LONG_PRESS;
+                                tmp.held = pressLength > BUTTON_LONG_THRESHOLD;
                                 #if DEBUG_FIRMWARE
                                 Serial << "Button released: " << i << "\n";
                                 #endif
@@ -63,7 +63,7 @@ namespace StackLabs {
                         }
                         break;
                     }
-                    delay(2);
+                    delay(BUTTON_POLL_DELAY);
                 }
             }
         }
