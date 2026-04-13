@@ -12,9 +12,9 @@ FQBN = arduino:avr:nano:cpu=atmega328
 
 # set me!!
 # find me w ls -lha /dev/tty*
-# PORT = /dev/tty.usbserial-110
+PORT = /dev/tty.usbserial-110
 # PORT = /dev/tty.usbserial-210
-PORT = /dev/tty.usbserial-10
+# PORT = /dev/tty.usbserial-10
 
 PROGRAM_DIR = ./
 
