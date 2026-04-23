@@ -8,9 +8,10 @@
 #ifndef ENVIRONMENT_H
 #define ENVIRONMENT_H
 
-#define HARDWARE 100
-#define FIRMWARE 100
-#define SOFTWARE 100
+#define HARDWARE (const char *)"1.0.0 4/13"
+#define FIRMWARE (const char *)"1.0.0 4/13"
+#define SOFTWARE (const char *)"1.0.0 4/13"
+#define PLATFORM (const char *)"AVR"
 
 #define DEBUG_FIRMWARE false
 

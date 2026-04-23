@@ -67,6 +67,7 @@ static const char _LOC[]            PROGMEM = "LOC";
 static const char _VAL[]            PROGMEM = "VAL";
 static const char _SORT_ALL[]       PROGMEM = "SORT ALL";
 static const char _PLACEHOLDER[]    PROGMEM = "000";
+static const char _RST[]            PROGMEM = "RST";
 
 #define WRITE_NONE { 0xFF, 0xFF, 0xFF, 0xFF }
 #define WRITE_1(a) { a, 0xFF, 0xFF, 0xFF }
@@ -84,7 +85,7 @@ const char *const STRINGS[STRING_COUNT] PROGMEM = {
     _VERSION, _INPUT, _LOCALE, _CURRENCY, _LANGUAGE, _DEVINFO, _HARDWARE,
     _FIRMWARE, _SOFTWARE, _PLATFORM, _FREEMEM, _UPTIME, _ERRS, _VALUES, _A, _B,
     _SYSTEM_OFF, _GOODBYE, _SHUTTING_DOWN, _INP, _LOC, _VAL, _SORT_ALL,
-    _PLACEHOLDER
+    _PLACEHOLDER, _RST
 };
 
 const struct Row ROW_TABLE[SCREEN_COUNT * 3] PROGMEM = {
@@ -191,9 +192,9 @@ const struct Button BTN_TABLE[SCREEN_COUNT * 4] PROGMEM = {
     BUTTON_(S_LOC, 10, 5),
     BUTTON_(S_VAL, 15, 5),
     // INPUT (7):
-    BUTTON_(S_MENU, 0, 10),
-    BUTTON_(S_SORT_ALL, 10, 10),
-    BUTTON_EMPTY,
+    BUTTON_(S_LEFT_ARROW, 0, 5),
+    BUTTON_(S_SORT_ALL, 5, 10),
+    BUTTON_(S_RST, 15, 5),
     BUTTON_EMPTY,
     // SETTINGS/LOCALE (8):
     BUTTON_(S_LEFT_ARROW, 0, 5),

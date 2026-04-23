@@ -5,53 +5,101 @@
 //  Created by Jayen Agrawal on 4/6/26.
 //
 
-//  DO NOT RUN ON DEVICE - shitty ai slop
-//  (now slightly improved by human)
-//  needs to be fully cleansed before running on hardware
-
 #include "StackLabs.h"
 
 using namespace StackLabs;
 
-// MECHANICAL CONSTANTS
+#define TOP_HOME_OFFSET     0
+#define BOT_HOME_OFFSET     0
 
-#define TOP_HOME_OFFSET      0
-#define BOT_HOME_OFFSET      0
+// steps from feeder to non-overshot pos
+#define TOP_STEPS_RED       54
+#define TOP_STEPS_GREEN     87
+#define TOP_STEPS_BLUE      120
+#define TOP_STEPS_BLACK     -100
 
-// Top disc: steps from home to each tube drop position.
-// Order: RED(0), GREEN(1), BLUE(2), BLACK(3)
-#define TOP_STEPS_RED        50
-#define TOP_STEPS_GREEN      100
-#define TOP_STEPS_BLUE       150
-#define TOP_STEPS_BLACK      200
+// overshoot for the fancy weird thing
+#define TOP_OVERSHOOT       30
 
-// Extra steps past the tube before reversing to drop the chip.
-#define TOP_OVERSHOOT        50
+// steps from aligned with output hole
+#define BOT_STEPS_RED       74 // 54
+#define BOT_STEPS_GREEN     107
+#define BOT_STEPS_BLUE      -102
+#define BOT_STEPS_BLACK     -70 // -50
 
-// Bottom disc: steps from home to align under each tube.
-#define BOT_STEPS_RED        50
-#define BOT_STEPS_GREEN      100
-#define BOT_STEPS_BLUE       150
-#define BOT_STEPS_BLACK      200
+// Motor speeds (lower is faster)
+#define TOP_SPEED           0xFF
+#define BOT_SPEED           0x7F
+#define TOP_ACCEL           10
+#define BOT_ACCEL           10
 
-// Motor speeds (µs per half-period; lower = faster).
-#define TOP_SPEED            600
-#define BOT_SPEED            300
+// data handled by my magic script
+#define EEPROM_COUNT_RED    0
+#define EEPROM_COUNT_GREEN  1
+#define EEPROM_COUNT_BLUE   2
+#define EEPROM_COUNT_BLACK  3
+#define EEPROM_CURRENCY     4
+#define EEPROM_VALUE_SET    5
+#define EEPROM_RESET_NEXT   9
 
-// EEPROM DATA
-#define EEPROM_COUNT_RED     0
-#define EEPROM_COUNT_GREEN   1
-#define EEPROM_COUNT_BLUE    2
-#define EEPROM_COUNT_BLACK   3
-#define EEPROM_CURRENCY      4
-#define EEPROM_VALUE_SET     5
-
-// RUNTIME STATE
+// state variables
 static uint8_t chipCounts[4];
 static uint8_t dispenseRequest[4];
 static uint8_t currencyID;
 static uint8_t valueSetID;
 static uint8_t uiState;
+
+static void homeTopDisc() {
+    Stepper::Stepper1.home();
+    // Stepper::Stepper1.setDirection(MotorDirection::CLOCKWISE);
+    // ColorSensor::readColor();
+    // if (ColorSensor::calculateMatch() != 4) {
+    //     Stepper::Stepper1.move(100, TOP_ACCEL);
+    //     ColorSensor::readColor();
+    // }
+    // while (ColorSensor::calculateMatch() == 4) {
+    //     Stepper::Stepper1.move(10, TOP_ACCEL);
+    //     ColorSensor::readColor();
+    // }
+    // Stepper::Stepper1.move(35, TOP_ACCEL);
+    // ColorSensor::readColor();
+    // if (ColorSensor::calculateMatch() != 4) {
+    //     homeTopDisc();
+    // }
+}
+
+static void homeBotDisc() {
+    Stepper::Stepper2.home();
+}
+
+// SETUP
+void setup() {
+    if (Data::readOr(EEPROM_RESET_NEXT, 0) == 1) {
+        Stepper::Stepper1.setZero();
+        Stepper::Stepper2.setZero();
+        Data::write(EEPROM_RESET_NEXT, 0, true);
+    }
+
+    StackLabs::setup();
+
+    chipCounts[0] = Data::readOr(EEPROM_COUNT_RED, 0);
+    chipCounts[1] = Data::readOr(EEPROM_COUNT_GREEN, 0);
+    chipCounts[2] = Data::readOr(EEPROM_COUNT_BLUE, 0);
+    chipCounts[3] = Data::readOr(EEPROM_COUNT_BLACK, 0);
+    currencyID = Data::readOr(EEPROM_CURRENCY, 0);
+    valueSetID = Data::readOr(EEPROM_VALUE_SET, 0);
+
+    Stepper::Stepper1.setSpeed(TOP_SPEED);
+    Stepper::Stepper2.setSpeed(BOT_SPEED);
+
+    Stepper::Stepper1.setDirection(MotorDirection::CLOCKWISE);
+    Stepper::Stepper2.setDirection(MotorDirection::CLOCKWISE);
+
+    homeTopDisc();
+    homeBotDisc();
+
+    uiState = 0;
+}
 
 static uint32_t computeTotal(const uint8_t counts[4]) {
     uint32_t total = 0;
@@ -204,28 +252,12 @@ static void writeDispenseButtonRow() {
 }
 
 // HOMING
-static const uint16_t TOP_TUBE_STEPS[4] = {
+static const int16_t TOP_TUBE_STEPS[4] = {
     TOP_STEPS_RED, TOP_STEPS_GREEN, TOP_STEPS_BLUE, TOP_STEPS_BLACK
 };
-static const uint16_t BOT_TUBE_STEPS[4] = {
+static const int8_t BOT_TUBE_STEPS[4] = {
     BOT_STEPS_RED, BOT_STEPS_GREEN, BOT_STEPS_BLUE, BOT_STEPS_BLACK
 };
-
-static void homeTopDisc() {
-    // Stepper::Stepper1.home();
-
-    Stepper::Stepper1.setDirection(MotorDirection::CLOCKWISE);
-    ColorSensor::readColor();
-    while (ColorSensor::calculateMatch() == 4) {
-        ColorSensor::readColor();
-        Stepper::Stepper1.move(5);
-    }
-    Stepper::Stepper1.move(45);
-}
-
-static void homeBotDisc() {
-    Stepper::Stepper2.home();
-}
 
 // SORT SEQUENCE (top disc)
 static uint8_t sortOneChip() {
@@ -237,32 +269,30 @@ static uint8_t sortOneChip() {
     lcd.setCursor(0,0);
     lcd.print(color);
     
-    uint8_t  tube = color - 1;
-    uint16_t tubeSteps = TOP_TUBE_STEPS[tube];
-    uint16_t totalSteps = tubeSteps + TOP_OVERSHOOT;
+    int16_t tubeSteps = TOP_TUBE_STEPS[color];
 
-    Stepper::Stepper1.setDirection(MotorDirection::CLOCKWISE);
-    Stepper::Stepper1.move(tubeSteps + TOP_OVERSHOOT);
+    Stepper::Stepper1.vectorMove(tubeSteps, TOP_ACCEL);
+    Stepper::Stepper1.vectorMove((tubeSteps > 0) ? TOP_OVERSHOOT :
+        0, TOP_ACCEL);
+    Stepper::Stepper1.vectorMove((tubeSteps > 0) ? -1 * TOP_OVERSHOOT :
+        0, TOP_ACCEL);
+    Stepper::Stepper1.vectorMove(-1 * tubeSteps, TOP_ACCEL);
 
-    Stepper::Stepper1.setDirection(MotorDirection::COUNTERCLOCKWISE);
-    Stepper::Stepper1.move(TOP_OVERSHOOT);
-
-    Stepper::Stepper1.setDirection(MotorDirection::CLOCKWISE);
-    Stepper::Stepper1.move(tubeSteps);
-
-    homeTopDisc();
-    return tube;
+    return color;
 }
 
 // DISPENSE SEQUENCE (bottom disc)
 static void dispenseOneChip(uint8_t tube) {
-    Stepper::Stepper2.setDirection(MotorDirection::CLOCKWISE);
-    Stepper::Stepper2.move(BOT_TUBE_STEPS[tube]);
-    delay(100);
-    Stepper::Stepper2.setDirection(MotorDirection::COUNTERCLOCKWISE);
-    Stepper::Stepper2.move(BOT_TUBE_STEPS[tube]);
-    delay(150);
-    homeBotDisc();
+    Stepper::Stepper2.vectorMove(BOT_TUBE_STEPS[tube], BOT_ACCEL);
+    // Stepper::Stepper2.vectorMove(-1 * BOT_TUBE_STEPS[tube], BOT_ACCEL);
+    if (BOT_TUBE_STEPS[tube] > 0) {
+        Stepper::Stepper2.home();
+    } else {
+        // please do not read :)
+        Stepper::Stepper2.setDirection(MotorDirection::CLOCKWISE);
+        Stepper::Stepper2.move(abs(BOT_TUBE_STEPS[tube]), BOT_ACCEL / 2);
+        Stepper::Stepper2.setZero();
+    }
 }
 
 // SORTING MODE (triggered from inventory screen long press)
@@ -271,20 +301,35 @@ static void runSortingMode() {
     const uint8_t MAX_NO_CHIP = 5;
 
     while (noChipStreak < MAX_NO_CHIP) {
-        uint8_t tube = sortOneChip();
+        ColorSensor::readColor();
+        uint8_t color = ColorSensor::calculateMatch();
 
-        if (tube == 0xFF) {
+        if (color == 4) {
             ++noChipStreak;
-            delay(300);
+            delay(500);
             continue;
         }
 
-        noChipStreak = 0;
-        if (chipCounts[tube] < 0xFF) ++chipCounts[tube];
-        Data::write(EEPROM_COUNT_RED + tube, chipCounts[tube], true);
-    }
+        lcd.setCursor(0,0);
+        lcd.write(color);
+        
+        int16_t tubeSteps = TOP_TUBE_STEPS[color];
+        int16_t totalSteps = tubeSteps + TOP_OVERSHOOT;
 
-    homeTopDisc();
+        Stepper::Stepper1.vectorMove(tubeSteps, TOP_ACCEL);
+        Stepper::Stepper1.vectorMove((tubeSteps > 0) ? TOP_OVERSHOOT :
+            0, TOP_ACCEL);
+        delay(50);
+        Stepper::Stepper1.vectorMove((tubeSteps > 0) ? -1 * TOP_OVERSHOOT :
+            0, TOP_ACCEL);
+        delay(100);
+        Stepper::Stepper1.vectorMove(-1 * tubeSteps, TOP_ACCEL);
+
+        noChipStreak = 0;
+        if (chipCounts[color] < 0xFF) ++chipCounts[color];
+
+        Data::write(EEPROM_COUNT_RED + color, chipCounts[color], true);
+    }
 }
 
 // SHARED CHIP ROW RENDERER
@@ -491,15 +536,44 @@ static void handleSettings() {
 // STATE 7: CHIP INPUT
 static void handleChipInput() {
     LCD::printEmptyState(7);
-    // for (uint8_t i = 0; i < 10;) {
-    //     if (sortOneChip() == 0xFF) {
-    //         ++i;
-    //     }
-    //     delay(100);
-    // }
-    // delay(1000);
-    runSortingMode();
-    uiState = 0;
+
+    Buttons::Press p = Buttons::getPress();
+    switch (p.button) {
+        case 0:
+        default:
+            uiState = 6;
+            break;
+        case 1:
+        case 2:
+            // for (uint8_t i = 0; i < 10;) {
+            //     if (sortOneChip() == 0xFF) {
+            //         ++i;
+            //     }
+            //     delay(100);
+            // }
+            // delay(1000);
+            LCD::printEmptyState(15);
+            runSortingMode();
+            LCD::printEmptyState(7);
+            uiState = 6;
+            break;
+        case 3:
+            Data::reset();
+
+
+            if (p.held) {
+                Stepper::Stepper1.setZero();
+                Stepper::Stepper2.setZero();
+                Data::write(EEPROM_RESET_NEXT, 1, true);
+            }
+
+            Stepper::Stepper1.setSleep(true);
+            Stepper::Stepper2.setSleep(true);
+
+            LCD::clear();
+
+            break;
+    }
 }
 
 // STATE 8: SETTINGS/LOCALE
@@ -538,16 +612,16 @@ static void handleLocale() {
 }
 
 // STATES 9–12: DEVICE INFO PAGES
-static void handleDevInfo(uint8_t page) {
+static void handleInfo(uint8_t page) {
     uint8_t state = 9 + page;
     LCD::printEmptyState(state);
 
     if (page == 0) {
-        LCD::fillValue(9,  1, 0, (const char *)"1.0.0 3/26");
-        LCD::fillValue(9,  2, 0, (const char *)"1.0.0 3/26");
+        LCD::fillValue(9, 1, 0, HARDWARE);
+        LCD::fillValue(9, 2, 0, SOFTWARE);
     } else if (page == 1) {
-        LCD::fillValue(10, 1, 0, (const char *)"1.0.0 3/26");
-        LCD::fillValue(10, 2, 0, (const char *)"AVR");
+        LCD::fillValue(10, 1, 0, FIRMWARE);
+        LCD::fillValue(10, 2, 0, PLATFORM);
     } else if (page == 2) {
         extern int __heap_start, *__brkval;
         int freeRam = (int)&freeRam -
@@ -564,14 +638,14 @@ static void handleDevInfo(uint8_t page) {
         uint32_t uptimeMins = millis() / 60000UL;
         char uptBuf[5];
         uptBuf[0] = '0' + (char)((uptimeMins / 1000) % 10);
-        uptBuf[1] = '0' + (char)((uptimeMins / 100)  % 10);
-        uptBuf[2] = '0' + (char)((uptimeMins / 10)   % 10);
+        uptBuf[1] = '0' + (char)((uptimeMins / 100) % 10);
+        uptBuf[2] = '0' + (char)((uptimeMins / 10) % 10);
         uptBuf[3] = '0' + (char)(uptimeMins % 10);
         uptBuf[4] = '\0';
         LCD::fillValue(11, 2, 0, uptBuf);
     } else {
-        LCD::fillValue(12, 1, 0, (const char *)"---- ---- ----");
-        LCD::fillValue(12, 2, 0, (const char *)"---- ---- ----");
+        // LCD::fillValue(12, 1, 0, (const char *)"---- ---- ----");
+        // LCD::fillValue(12, 2, 0, (const char *)"---- ---- ----");
     }
 
     Buttons::Press p = Buttons::getPress();
@@ -623,12 +697,12 @@ static void handleValues() {
                     rowBuf[base + 2] = 'K';
                 } else {
                     rowBuf[base + 0] = '0' + (char)((v / 100) % 10);
-                    rowBuf[base + 1] = '0' + (char)((v / 10)  % 10);
+                    rowBuf[base + 1] = '0' + (char)((v / 10) % 10);
                     rowBuf[base + 2] = '0' + (char)(v % 10);
                 }
             } else {
                 rowBuf[base + 0] = '0' + (char)((v / 100) % 10);
-                rowBuf[base + 1] = '0' + (char)((v / 10)  % 10);
+                rowBuf[base + 1] = '0' + (char)((v / 10) % 10);
                 rowBuf[base + 2] = '0' + (char)(v % 10);
             }
             rowBuf[base + 3] = (t < 3) ? ' ' : '\0';
@@ -663,11 +737,13 @@ static void handleOff() {
     Stepper::Stepper1.setSleep(true);
     Stepper::Stepper2.setSleep(true);
     LCD::clear();
+    LCD::backlight(false);
 
     // wake
     Buttons::Press p = Buttons::getPress();
     Stepper::Stepper1.setSleep(false);
     Stepper::Stepper2.setSleep(false);
+    LCD::backlight(true);
     LCD::setup();
     uiState = 0;
 }
@@ -678,28 +754,6 @@ static void handleWait() {
     delay(1000);
     uiState = 0;
     return;
-}
-
-// SETUP
-void setup() {
-    StackLabs::setup();
-
-    chipCounts[1] = Data::readOr(EEPROM_COUNT_RED, 0);
-    chipCounts[2] = Data::readOr(EEPROM_COUNT_GREEN, 0);
-    chipCounts[3] = Data::readOr(EEPROM_COUNT_BLUE, 0);
-    chipCounts[0] = Data::readOr(EEPROM_COUNT_BLACK, 0);
-    currencyID = Data::readOr(EEPROM_CURRENCY, 0);
-    valueSetID = Data::readOr(EEPROM_VALUE_SET, 0);
-
-    Stepper::Stepper1.setSpeed(TOP_SPEED);
-    Stepper::Stepper2.setSpeed(BOT_SPEED);
-
-    uiState = 0;
-
-    handleMenu();
-
-    homeTopDisc();
-    homeBotDisc();
 }
 
 // LOOP
@@ -714,10 +768,10 @@ void loop() {
         case 6:  handleSettings();      break;
         case 7:  handleChipInput();     break;
         case 8:  handleLocale();        break;
-        case 9:  handleDevInfo(0);      break;
-        case 10: handleDevInfo(1);      break;
-        case 11: handleDevInfo(2);      break;
-        case 12: handleDevInfo(3);      break;
+        case 9:  handleInfo(0);      break;
+        case 10: handleInfo(1);      break;
+        case 11: handleInfo(2);      break;
+        case 12: handleInfo(3);      break;
         case 13: handleValues();        break;
         case 14: handleOff();           break;
         case 15: handleWait();          break;

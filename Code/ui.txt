@@ -92,7 +92,7 @@ INPUT (7):
 ║     CHIP INPUT     ║ ROW 0
 ║                    ║ ROW 1
 ║                    ║ ROW 2
-║[  MENU  ][SORT ALL]║ ROW 3
+║[ ← ][SORT ALL][RST]║ ROW 3
 ╟────────────────────╢
 ║ [ ]  [ ]  [ ]  [ ] ║ BUTTONS
 ╚════════════════════╝

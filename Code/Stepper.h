@@ -8,6 +8,9 @@
 #ifndef STEPPER_H
 #define STEPPER_H
 
+#define STEPPER_MAX_DELAY 0x1FFFu
+#define STEPPER_MIN_DELAY 0x4u
+
 #include "Environment.h"
 #include "Multiplexer.h"
 #include "Data.h"
@@ -35,7 +38,9 @@ namespace StackLabs {
 
             /**
              * @brief   Normalizes step position rotation to be an offset from
-             *          zero that does not exceed the step count.
+             *          zero that does not exceed the step count. Saves the
+             *          position offset to EEPROM (yikes). Kinda only works w/
+             *          whole steps but will add partial support if needed.
              * 
              * @param   add     Optional number of steps to add at this stage.
              * 
@@ -78,7 +83,18 @@ namespace StackLabs {
              * 
              * @return  Current step, normalized to an offset from zero.
             */
-            uint16_t move(uint16_t steps);
+            uint16_t move(uint16_t steps, uint8_t accelLimit);
+
+            /**
+             * @brief   Direction based step. Positive for clockwise, negative
+             *          for counterclockwise.
+             * 
+             * @param   steps       Number of steps to move.
+             * @param   accelLimit  Limit of motor acceleration.
+             * 
+             * @return  Current step, normalized to an offset from zero.
+            */
+           uint16_t vectorMove(int16_t steps, uint8_t accelLimit);
 
             /**
              * @brief   Set the step mode to full, 1/2, or 1/4. Other step
@@ -137,6 +153,11 @@ namespace StackLabs {
              * @param   sleep   true to sleep, false to wake.
             */
             void setSleep(bool sleep);
+
+            /**
+             * @brief   Sets the current motor position to the zero position.
+            */
+            void setZero();
         };
 
         extern Motor Stepper1;

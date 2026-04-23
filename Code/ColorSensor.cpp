@@ -6,10 +6,12 @@
 //
 
 #include "ColorSensor.h"
+#include "LCD.h"
 
 static const uint8_t COLOR_THRESHOLD = 15;
-static const uint8_t BLACK_THRESHOLD = 25;
-static const uint8_t BLACK_MAXIMUM = 100;
+static const uint8_t BLACK_RED = 60;
+static const uint8_t BLACK_GREEN = 94;
+static const uint8_t BLACK_BLUE = 62;
 
 static const uint16_t RED_WHITE = 15;
 static const uint16_t RED_BLACK = 927;
@@ -66,7 +68,10 @@ namespace StackLabs {
         }
 
         uint8_t calculateMatch() {
-            if (getRed() > getGreen() + COLOR_THRESHOLD &&
+            if (getBlue() < BLACK_BLUE &&
+                getRed() < BLACK_RED && getGreen() < BLACK_GREEN) {
+                return 3;
+            } else if (getRed() > getGreen() + COLOR_THRESHOLD &&
                 getRed() > getBlue() + COLOR_THRESHOLD) {
                 return 0;
             } else if (getGreen() > getRed() + COLOR_THRESHOLD &&
@@ -75,9 +80,6 @@ namespace StackLabs {
             } else if (getBlue() > getRed() + COLOR_THRESHOLD &&
                 getBlue() > getGreen() + COLOR_THRESHOLD) {
                 return 2;
-            } else if (getClear() > BLACK_THRESHOLD &&
-                getClear() < BLACK_MAXIMUM) {
-                return 3;
             }
             return 4;
         }
