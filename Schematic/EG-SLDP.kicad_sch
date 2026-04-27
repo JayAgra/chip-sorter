@@ -3053,9 +3053,9 @@
 		)
 		(uuid "15c8bbe2-f927-4230-a886-dbc378ac6536")
 	)
-	(text "1A - Black\n1B - Green\n2A - Red\n2B - Blue"
+	(text "1A - Black\n1B - Green\n2A - Red\n2B - Blue\n\nGreen\nBlack\nRed\nBlue"
 		(exclude_from_sim no)
-		(at 70.104 135.89 0)
+		(at 69.85 141.478 0)
 		(effects
 			(font
 				(size 1.27 1.27)
